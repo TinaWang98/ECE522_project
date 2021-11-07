@@ -34,6 +34,8 @@ fn main() {
     *                   别人笑我忒疯癫，我笑自己命太贱；
     *                   不见满街漂亮妹，哪个归得程序员？
     */
+
+    // =========== AVL Tree Sample Test ==========
     let mut avl_tree = None;
     for i in vec![
         10, 4, 7, 1, 3, 8, 9,
@@ -42,6 +44,18 @@ fn main() {
     {
         avl_tree.t_insert(i);
     }
+
+    //       7
+    //      / \
+    //     3   9
+    //   / \  / \
+    //  1  4 8  10
+    avl_tree.delete(9);
+    //       7
+    //      / \
+    //     3   10
+    //   / \  /
+    //  1  4 8
     println!("{:#?}", avl_tree);
     // 日你妈老子成功了！！！！！
 }

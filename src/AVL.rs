@@ -4,9 +4,6 @@ use core::mem::swap;
 use DeleteValue::*;
 use InnerResult::*;
 
-mod utils;
-mod test;
-
 pub type AvlTreeNode<T> = Option<Box<TreeNode<T>>>;
 
 #[derive(Clone, Debug)]
