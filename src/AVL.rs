@@ -55,7 +55,7 @@ impl<T: PartialOrd> PartialOrd<Box<TreeNode<T>>> for DeleteValue<T> {
         }
     }
 }
-
+// 私有方法接口 - private function trait
 trait __AvlTree<T: PartialOrd> {
     fn right_rotate(&mut self);
     // 右旋转 - ll
@@ -68,14 +68,14 @@ trait __AvlTree<T: PartialOrd> {
     fn do_insert(&mut self, val: T) -> InnerResult;
     fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult;
 }
-
+// 公有方法接口 (给用户调用) - public function trait
 pub trait AvlTree<T: PartialOrd> {
     fn new(val: T) -> Self;
     fn height(&self) -> i32;
     fn insert(&mut self, val: T);
     fn delete(&mut self, val: T) -> Self;
 }
-
+// 实现私有方法
 impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
     //         y                            x
     //        / \     Right Rotation       / \
@@ -244,6 +244,8 @@ impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult {
+        // 核心思想: Hibbard Deletion - 当待删除节点左右都不为空时，首先找到以待删除节点为根的子树，其次找到最接近它的值的节点，用这个节点来替换
+        // e.g. 我要删除59这个节点，最优解是找到58或者60(左侧找最大，右侧找最小)
         match self {
             // 如果这个地方没有值，那就"什么都不做"
             None => {
@@ -259,49 +261,54 @@ impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
                     if root.left.is_some() {
                         //左右子树均非空
                         if root.right.is_some() {
+                            // 找到左右两侧中高度最高的那颗子树拿取替补节点，减少对平衡性的损坏
                             if root.left.height() > root.right.height() {
-                                *val = Max;
-                                root.left.do_delete(val);
+                                *val = Max;  // 找到左侧最大值，这里不用担心目标值val会被覆盖，因为"val==root"
+                                root.left.do_delete(val); // 在左侧子树中删除这个"最大节点"并返回这个节点
                                 match val {
+                                    // 如果有返回值Del<Node<T>>，就将这个"最大节点"和"待删除节点交换"，让"最大节点"进入"待删除节点交换"的原有位置
                                     Del(Some(node)) => {
                                         swap(&mut root.val, &mut node.val);
                                     }
                                     _ => unreachable!(),
                                 }
                             } else {
+                                // 如果是右侧子树最高，那么就在右侧子树中找最小值
                                 *val = Min;
-                                root.right.do_delete(val);
+                                root.right.do_delete(val);  // 删除这个最小值并返回
                                 match val {
+                                    // 如果返回值不为空，那么就将这个"最小节点"和"待删除节点交换"，让"最小节点"进入"待删除节点交换"的原有位置
                                     Del(Some(x)) => {
                                         swap(&mut root.val, &mut x.val);
                                     }
                                     _ => unreachable!(),
                                 }
                             }
-                            //左子树非空，右子树为空
-                        } else {
+                        } else {  //左子树非空(left.is_some())，右子树为空(right.is_none())
+                            // 直接拿取待删除节点的左侧子树
                             let mut left = root.left.take();
+                            // 让左侧子树的头节点接入待删除节点的位置
                             swap(self, &mut left);
-                            *val = Del(left);
+                            *val = Del(left);  // 返回待删除节点
                         }
-                        //左子树为空，右子树非空或为空
-                    } else {
+                    } else {  //左子树为空(left.is_none())，右子树非空或为空
+                        // 直接拿去待删除节点的右侧子树
                         let mut right = root.right.take();
+                        // 将右侧子树的头节点接入待删除节点的位置
                         swap(self, &mut right);
-                        *val = Del(right);
+                        *val = Del(right); // 返回待删除节点
                     }
-                    self.update_height();
-                    //进入左子树递归删除
-                } else if val < root {
-                    match root.left.do_delete(val) {
-                        Balanced => return Balanced,
-                        Unknown => {
-                            if self.balance_factor() == -2 {
-                                let right = self.as_ref().unwrap().right.as_ref().unwrap();
-                                if right.left.height() > right.right.height() {
-                                    self.rotate_rl();
+                    self.update_height();  // 捣鼓完了更新一下节点高度
+                } else if val < root {  // Case 2: 待删除的值比当前节点的值要小，进入左子树递归删除
+                    match root.left.do_delete(val) {  // 递归的向左侧子树进行删除操作，当找到后待删除节点后会执行Case 1的代码并返回结果(balance or not?)
+                        Balanced => return Balanced,  // 如果删除完了还是balance，那就什么都不做
+                        Unknown => {  // 如果不平衡了就要自旋转来维护平衡
+                            if self.balance_factor() == -2 {  // 左侧删除完之后右侧会变高
+                                let right = self.as_ref().unwrap().right.as_ref().unwrap();  // 拿去右侧子树
+                                if right.left.height() > right.right.height() {  // 如果右侧子树的左侧比右侧搞
+                                    self.rotate_rl();  // RightLeft - rl case
                                 } else {
-                                    self.left_rotate();
+                                    self.left_rotate();  // Otherwise, RightRight - rr case
                                 }
                             } else {
                                 self.update_height();
@@ -309,8 +316,7 @@ impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
                         }
                         _ => unreachable!(),
                     }
-                    //进入右子树递归删除
-                } else {
+                } else {  // val>root，进入右子树递归删除
                     match root.right.do_delete(val) {
                         Balanced => return Balanced,
                         Unknown => {
@@ -328,7 +334,8 @@ impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
                         _ => unreachable!(),
                     }
                 }
-
+                // 这里就是递归到“底层”执行完删除动作之后返回给上一层的结果
+                // root.[direction].do_delete(val) -> Balanced or Unknown?
                 if self.height() == height {
                     Balanced
                 } else {
@@ -340,6 +347,7 @@ impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
 }
 
 impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
+    // 新建一个节点
     fn new(val: T) -> Self {
         Some(Box::new(TreeNode {
             val,
@@ -348,23 +356,23 @@ impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
             right: None,
         }))
     }
-
+    // 获取节点的高度
     fn height(&self) -> i32 {
         match self {
             None => 0,
-            Some(x) => x.height,
+            Some(node) => node.height,
         }
     }
-
+    // 插入节点：调用私用方法
     fn insert(&mut self, val: T) {
         self.do_insert(val);
     }
-
+    // 删除节点：调用私用方法
     fn delete(&mut self, val: T) -> Self {
         let mut val = Val(val);
         self.do_delete(&mut val);
         match val {
-            Del(x) => x,
+            Del(node) => node,
             _ => unreachable!(),
         }
     }
