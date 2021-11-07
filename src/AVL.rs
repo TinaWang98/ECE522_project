@@ -2,7 +2,7 @@ use core::cmp::{max, Ordering};
 use core::mem::swap;
 use DeleteValue::*;
 use InnerResult::*;
-
+// Total 339 lines
 // smart pointer with Box<T>
 pub type AvlTreeNode<T> = Option<Box<TreeNode<T>>>;
 
