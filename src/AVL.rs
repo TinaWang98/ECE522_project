@@ -11,7 +11,7 @@ pub struct TreeNode<Data: PartialOrd> {
     left_child: AVLTreeNode<T>,
     right_child: AVLTreeNode<T>,
 }
-
+// 定义了几个基本方法
 pub trait AvlTree<T: PartialOrd> {
     fn new(val: T) -> Self;
     fn height(&self) -> i32;
@@ -19,9 +19,9 @@ pub trait AvlTree<T: PartialOrd> {
     fn delete(&mut self, val: T) -> Self;
 }
 
-impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
+impl<T: PartialOrd> AvlTree<T> for AVLTreeNode<T> {
     // generate a pure new node
-    fn new(data: T) -> AVLTreeNode<T> {
+    fn new(data: T) -> Self {
         Some(Rc::new(RefCell::new(
             TreeNode {
                 data,
@@ -35,16 +35,22 @@ impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
     fn height(&self) -> i32 {
         match self {
             None => 0,
-            // TODO
+            // Rc::take() - 解除包裹，暴露原本数值
+            Some(node) => node.take().height,
         }
     }
 
-    fn insert(&mut self, val: T) {
-        todo!()
+    fn insert(&mut self, val: T) -> AVLTreeNode<T>{
+        match self {
+            None => Self::new(),
+            Some(node)=>{
+                // TODO
+            }
+        }
     }
 
     fn delete(&mut self, val: T) -> Self {
-        todo!()
+
     }
 }
 
