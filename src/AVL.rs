@@ -1,61 +1,339 @@
-use std::borrow::BorrowMut;
-use std::cell::RefCell;
-use std::rc::Rc;
+use core::cmp::{max, Ordering};
+use core::mem::swap;
+use DeleteValue::*;
+use InnerResult::*;
 
-type AVLTreeNode<T> = Option<Rc<RefCell<TreeNode<T>>>>;
+// smart pointer with Box<T>
+pub type AvlTreeNode<T> = Option<Box<TreeNode<T>>>;
+
 #[derive(Clone, Debug)]
-// each node has 4 features: data, height, left and right child
-pub struct TreeNode<Data: PartialOrd> {
-    data: u32,
+pub struct TreeNode<T: PartialOrd> {
+    val: T,
     height: i32,
-    left_child: AVLTreeNode<T>,
-    right_child: AVLTreeNode<T>,
-}
-// 定义了几个基本方法
-pub trait AvlTree<T: PartialOrd> {
-    fn new(val: T) -> Self;
-    fn height(&self) -> i32;
-    fn insert(&mut self, val: T);
-    fn delete(&mut self, val: T) -> Self;
+    left: AvlTreeNode<T>,
+    right: AvlTreeNode<T>,
 }
 
-impl<T: PartialOrd> AvlTree<T> for AVLTreeNode<T> {
-    // generate a pure new node
-    fn new(data: T) -> Self {
-        Some(Rc::new(RefCell::new(
-            TreeNode {
-                data,
-                height: 1,
-                left_child: None,
-                right_child: None,
+enum InnerResult {
+    Left,     //在左子树完成插入
+    Right,    //在右子树完成插入
+    Unknown,  //树的平衡性未知
+    Balanced, //树已确定平衡
+}
+
+enum DeleteValue<T: PartialOrd> {
+    Min,                 //匹配最小节点
+    Max,                 //匹配最大节点
+    Val(T),              //匹配给定值
+    Del(AvlTreeNode<T>), //返回被删除节点
+}
+
+impl<T: PartialOrd> PartialEq<Box<TreeNode<T>>> for DeleteValue<T> {
+    fn eq(&self, other: &Box<TreeNode<T>>) -> bool {
+        match self {
+            Min => other.left.is_none(),
+            Max => other.right.is_none(),
+            Val(v) => v == &other.val,
+            _ => false,
+        }
+    }
+}
+
+impl<T: PartialOrd> PartialOrd<Box<TreeNode<T>>> for DeleteValue<T> {
+    fn partial_cmp(&self, other: &Box<TreeNode<T>>) -> Option<Ordering> {
+        match self {
+            Min => Some(Ordering::Less),
+            Max => Some(Ordering::Greater),
+            Val(v) => v.partial_cmp(&other.val),
+            _ => None,
+        }
+    }
+}
+// 定义私有方法，仅限于内部操作 - internal ONLY
+trait __AvlTree<T: PartialOrd> {
+    fn left_rotate(&mut self);  // Basic ll - 左旋
+    fn right_rotate(&mut self);  // Basic rr - 右旋转
+    fn rotate_lr(&mut self);
+    fn rotate_rl(&mut self);
+    fn update_height(&mut self);  // 更新节点高度
+    fn balance_factor(&self) -> i32;  // 更新平衡因子
+    fn do_insert(&mut self, val: T) -> InnerResult;  // 添加
+    fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult;  // 删除
+}
+// 定义公有方法，用户接口 - user interface
+pub trait AvlTree<T: PartialOrd> {
+    fn new(val: T) -> Self;  // 新建节点
+    fn height(&self) -> i32; // 获取高度
+    fn insert(&mut self, val: T);  // 添加节点
+    fn delete(&mut self, val: T) -> Self;  // 删除节点
+}
+
+// 编写私有方法 - 内部操作使用，用户不可见！
+impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
+    fn left_rotate(&mut self) {
+        match self {
+            Some(root) => {
+                let left = &mut root.left.take();
+                match left {
+                    Some(x) => {
+                        swap(&mut root.left, &mut x.right);
+                        self.update_height();
+                        swap(self, &mut x.right);
+                        swap(self, left);
+                        self.update_height();
+                    }
+                    None => unreachable!(),
+                }
             }
-        )))
+            None => unreachable!(),
+        }
+    }
+
+    //         y                            x
+    //        / \     Right Rotation       / \
+    //       x   T4    ==============>    z   y
+    //      / \                          / \ / \
+    //     z   T3                       1  2 3 4
+    //   T1 T2
+    // 对以一个节点为root的树进行右旋转
+    fn right_rotate(&mut self) {
+        match self {
+            Some(root) => {
+                // 1. 拆解 x 的右侧子树 T3
+                let right = &mut root.right.take();
+                match right {
+                    // 如果有，那么
+                    Some(x) => {
+
+                        swap(&mut root.right, &mut x.left);
+                        self.update_height();
+                        swap(self, &mut x.left);
+                        swap(self, right);
+                        self.update_height();
+                    }
+                    None => unreachable!(),
+                }
+            }
+            None => unreachable!(),
+        }
+    }
+
+    fn rotate_lr(&mut self) {
+        match self {
+            Some(root) => {
+                root.left.right_rotate();
+                self.left_rotate();
+            }
+            None => unreachable!(),
+        }
+    }
+
+    fn rotate_rl(&mut self) {
+        match self {
+            Some(root) => {
+                root.right.left_rotate();
+                self.right_rotate();
+            }
+            None => unreachable!(),
+        }
+    }
+
+    fn update_height(&mut self) {
+        match self {
+            None => {}
+            Some(x) => x.height = max(x.left.height(), x.right.height()) + 1,
+        }
+    }
+
+    fn balance_factor(&self) -> i32 {
+        match self {
+            None => 0,
+            Some(x) => x.left.height() - x.right.height(),
+        }
+    }
+
+    fn do_insert(&mut self, val: T) -> InnerResult {
+        match self {
+            //直接插入新节点
+            None => {
+                *self = Self::new(val);
+                Unknown
+            }
+            //递归插入
+            Some(root) => {
+                //重复数据
+                if val == root.val {
+                    Balanced
+                    //进入左子树递归插入
+                } else if val < root.val {
+                    match root.left.do_insert(val) {
+                        Balanced => Balanced,
+                        x => {
+                            if self.balance_factor() == 2 {
+                                match x {
+                                    Left => self.left_rotate(),
+                                    Right => self.rotate_lr(),
+                                    _ => unreachable!(),
+                                }
+                                Balanced
+                            } else if self.height() == {
+                                self.update_height();
+                                self.height()
+                            } {
+                                Balanced
+                            } else {
+                                Left
+                            }
+                        }
+                    }
+                    //进入右子树递归插入
+                } else {
+                    match root.right.do_insert(val) {
+                        Balanced => Balanced,
+                        x => {
+                            if self.balance_factor() == -2 {
+                                match x {
+                                    Left => self.rotate_rl(),
+                                    Right => self.right_rotate(),
+                                    _ => unreachable!(),
+                                }
+                                Balanced
+                            } else if self.height() == {
+                                self.update_height();
+                                self.height()
+                            } {
+                                Balanced
+                            } else {
+                                Right
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult {
+        match self {
+            None => {
+                *val = Del(None);
+                Balanced
+            }
+            Some(root) => {
+                let height = root.height;
+
+                //删除当前节点
+                if val == root {
+                    if root.left.is_some() {
+                        //左右子树均非空
+                        if root.right.is_some() {
+                            if root.left.height() > root.right.height() {
+                                *val = Max;
+                                root.left.do_delete(val);
+                                match val {
+                                    Del(Some(x)) => {
+                                        swap(&mut root.val, &mut x.val);
+                                    }
+                                    _ => unreachable!(),
+                                }
+                            } else {
+                                *val = Min;
+                                root.right.do_delete(val);
+                                match val {
+                                    Del(Some(x)) => {
+                                        swap(&mut root.val, &mut x.val);
+                                    }
+                                    _ => unreachable!(),
+                                }
+                            }
+                            //左子树非空，右子树为空
+                        } else {
+                            let mut left = root.left.take();
+                            swap(self, &mut left);
+                            *val = Del(left);
+                        }
+                        //左子树为空，右子树非空或为空
+                    } else {
+                        let mut right = root.right.take();
+                        swap(self, &mut right);
+                        *val = Del(right);
+                    }
+                    self.update_height();
+                    //进入左子树递归删除
+                } else if val < root {
+                    match root.left.do_delete(val) {
+                        Balanced => return Balanced,
+                        Unknown => {
+                            if self.balance_factor() == -2 {
+                                let right = self.as_ref().unwrap().right.as_ref().unwrap();
+                                if right.left.height() > right.right.height() {
+                                    self.rotate_rl();
+                                } else {
+                                    self.right_rotate();
+                                }
+                            } else {
+                                self.update_height();
+                            }
+                        }
+                        _ => unreachable!(),
+                    }
+                    //进入右子树递归删除
+                } else {
+                    match root.right.do_delete(val) {
+                        Balanced => return Balanced,
+                        Unknown => {
+                            if self.balance_factor() == 2 {
+                                let left = self.as_ref().unwrap().left.as_ref().unwrap();
+                                if left.left.height() >= left.right.height() {
+                                    self.left_rotate();
+                                } else {
+                                    self.rotate_lr();
+                                }
+                            } else {
+                                self.update_height();
+                            }
+                        }
+                        _ => unreachable!(),
+                    }
+                }
+
+                if self.height() == height {
+                    Balanced
+                } else {
+                    Unknown
+                }
+            }
+        }
+    }
+}
+
+impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
+    fn new(val: T) -> Self {
+        Some(Box::new(TreeNode {
+            val,
+            height: 1,
+            left: None,
+            right: None,
+        }))
     }
 
     fn height(&self) -> i32 {
         match self {
             None => 0,
-            // Rc::take() - 解除包裹，暴露原本数值
-            Some(node) => node.take().height,
+            Some(x) => x.height,
         }
     }
 
-    fn insert(&mut self, val: T) -> AVLTreeNode<T>{
-        match self {
-            None => Self::new(),
-            Some(node)=>{
-                // TODO
-            }
-        }
+    fn insert(&mut self, val: T) {
+        self.do_insert(val);
     }
 
     fn delete(&mut self, val: T) -> Self {
-
-    }
-}
-
-impl<T: ToString + PartialOrd> ToString for TreeNode<T> {
-    fn to_string(&self) -> String {
-        return format!("Node {}(h: {} l: {}, r: {})", self.data.to_string(), self.height, to_string::<T>(&self.left), to_string::<T>(&self.right));
+        let mut val = Val(val);
+        self.do_delete(&mut val);
+        match val {
+            Del(x) => x,
+            _ => unreachable!(),
+        }
     }
 }
