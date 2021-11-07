@@ -4,6 +4,9 @@ use core::mem::swap;
 use DeleteValue::*;
 use InnerResult::*;
 
+mod utils;
+mod test;
+
 pub type AvlTreeNode<T> = Option<Box<TreeNode<T>>>;
 
 #[derive(Clone, Debug)]
@@ -72,7 +75,7 @@ trait __AvlTree<T: PartialOrd> {
 pub trait AvlTree<T: PartialOrd> {
     fn new(val: T) -> Self;
     fn height(&self) -> i32;
-    fn insert(&mut self, val: T);
+    fn t_insert(&mut self, val: T);
     fn delete(&mut self, val: T) -> Self;
 }
 // 实现私有方法
@@ -350,7 +353,7 @@ impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
     // 新建一个节点
     fn new(val: T) -> Self {
         Some(Box::new(TreeNode {
-            val,
+            val: val,
             height: 1,
             left: None,
             right: None,
@@ -364,7 +367,7 @@ impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
         }
     }
     // 插入节点：调用私用方法
-    fn insert(&mut self, val: T) {
+    fn t_insert(&mut self, val: T) {
         self.do_insert(val);
     }
     // 删除节点：调用私用方法

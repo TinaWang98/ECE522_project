@@ -1,7 +1,8 @@
+use crate::AVL::{AvlTree, AvlTreeNode};
+
 mod AVL;
 
 fn main() {
-    println!("ECE 522 Project Test");
     /*
     *                            o8888888o
     *                             _ooOoo_
@@ -33,4 +34,14 @@ fn main() {
     *                   别人笑我忒疯癫，我笑自己命太贱；
     *                   不见满街漂亮妹，哪个归得程序员？
     */
+    let mut avl_tree = None;
+    for i in vec![
+        10, 4, 7, 1, 3, 8, 9,
+    ]
+        .into_iter()
+    {
+        avl_tree.t_insert(i);
+    }
+    println!("{:#?}", avl_tree);
+    // 日你妈老子成功了！！！！！
 }
