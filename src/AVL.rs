@@ -82,7 +82,10 @@ pub trait AvlTree<T: PartialOrd> {
     fn is_tree_empty(&self) -> bool;  // 此树空否？
     fn height_of_tree(&self) -> i32;  // 此树的高度
     fn number_of_leaves(&self) -> i32;  // 叶子节点的数量
-    fn in_order_traverse(&mut self);  // 叶子节点的数量
+    fn in_order_traverse(&mut self);  // 树的中序遍历
+    fn pre_order_traverse(&mut self);  // 树的前序遍历
+    fn post_order_traverse(&mut self);  // 树的后序遍历
+    fn tree_diagram_print(&mut self);  // 打印树
 }
 // 实现私有方法
 impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
@@ -435,14 +438,41 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn in_order_traverse(&mut self) {
-
         match self {
             None => (),
             Some(node)=>{
+                // 先左再当前再右
                 node.left.in_order_traverse();
                 print!(" {:?} ",node.val);
                 node.right.in_order_traverse();
             }
         }
+    }
+
+    fn pre_order_traverse(&mut self) {
+        match self {
+            None => (),
+            Some(node)=>{
+                // 先当前再左再右
+                print!(" {:?} ",node.val);
+                node.left.pre_order_traverse();
+                node.right.pre_order_traverse();
+            }
+        }
+    }
+
+    fn post_order_traverse(&mut self) {
+        match self {
+            None => (),
+            Some(node)=>{
+                // 先左再右再当前
+                node.left.post_order_traverse();
+                node.right.post_order_traverse();
+                print!(" {:?} ",node.val);
+            }
+        }
+    }
+    fn tree_diagram_print(&mut self) {
+        todo!()
     }
 }

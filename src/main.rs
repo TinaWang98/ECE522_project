@@ -65,5 +65,12 @@ fn main() {
 
     println!("叶子节点的数量：{}", avl_tree.number_of_leaves());
     println!("树的高度是:{}", avl_tree.height_of_tree());
+
+    println!("中序：");
     avl_tree.in_order_traverse();
+    println!("\n前序：");
+    avl_tree.pre_order_traverse();
+    println!("\n后序：");
+    avl_tree.post_order_traverse();
+    println!("\n");
 }
