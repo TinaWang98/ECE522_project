@@ -37,12 +37,9 @@ fn main() {
 
     // =========== AVL Tree Sample Test ==========
     let mut avl_tree = None;
-    for i in vec![
-        10, 4, 7, 1, 3, 8, 9,
-    ]
-        .into_iter()
-    {
-        avl_tree.t_insert(i);
+
+    for i in vec![10, 4, 7, 1, 3, 8, 9].into_iter() {
+        avl_tree.insert_node(i);
     }
 
     //       7
@@ -50,12 +47,23 @@ fn main() {
     //     3   9
     //   / \  / \
     //  1  4 8  10
-    avl_tree.delete(9);
+    // avl_tree.delete_node(9);
     //       7
     //      / \
     //     3   10
     //   / \  /
     //  1  4 8
     println!("{:#?}", avl_tree);
-    // 日你妈老子成功了！！！！！
+
+    if AvlTreeNode::validate_tree(&avl_tree) {
+        println!("树是AVL");
+    } else { println!("不是AVL树！") }
+
+    if avl_tree.is_tree_empty() {
+        println!("树是空的");
+    } else { println!("不是空的树") }
+
+    println!("叶子节点的数量：{}", avl_tree.number_of_leaves());
+    println!("树的高度是:{}", avl_tree.height_of_tree());
+    avl_tree.in_order_traverse();
 }

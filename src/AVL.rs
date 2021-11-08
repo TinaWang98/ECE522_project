@@ -1,5 +1,7 @@
 use core::cmp::{max, Ordering};
 use core::mem::swap;
+use std::borrow::Borrow;
+use std::fmt::{Debug, Display};
 
 use DeleteValue::*;
 use InnerResult::*;
@@ -55,6 +57,7 @@ impl<T: PartialOrd> PartialOrd<Box<TreeNode<T>>> for DeleteValue<T> {
         }
     }
 }
+
 // 私有方法接口 - private function trait
 trait __AvlTree<T: PartialOrd> {
     fn right_rotate(&mut self);
@@ -68,15 +71,21 @@ trait __AvlTree<T: PartialOrd> {
     fn do_insert(&mut self, val: T) -> InnerResult;
     fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult;
 }
+
 // 公有方法接口 (给用户调用) - public function trait
 pub trait AvlTree<T: PartialOrd> {
-    fn new(val: T) -> Self;
-    fn height(&self) -> i32;
-    fn t_insert(&mut self, val: T);
-    fn delete(&mut self, val: T) -> Self;
+    fn new(val: T) -> Self;  // 新建节点
+    fn height(&self) -> i32;  // 获取某个节点的高度
+    fn insert_node(&mut self, val: T);  // 插入节点
+    fn delete_node(&mut self, val: T) -> Self;  // 删除节点
+    fn validate_tree(tree: &AvlTreeNode<T>) -> bool;  // 是AVL树否？
+    fn is_tree_empty(&self) -> bool;  // 此树空否？
+    fn height_of_tree(&self) -> i32;  // 此树的高度
+    fn number_of_leaves(&self) -> i32;  // 叶子节点的数量
+    fn in_order_traverse(&mut self);  // 叶子节点的数量
 }
 // 实现私有方法
-impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
+impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     //         y                            x
     //        / \     Right Rotation       / \
     //       x  T4    ==============>     z   y
@@ -346,7 +355,7 @@ impl<T: PartialOrd> __AvlTree<T> for AvlTreeNode<T> {
     }
 }
 
-impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
+impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     // 新建一个节点
     fn new(val: T) -> Self {
         Some(Box::new(TreeNode {
@@ -364,16 +373,76 @@ impl<T: PartialOrd> AvlTree<T> for AvlTreeNode<T> {
         }
     }
     // 插入节点：调用私用方法
-    fn t_insert(&mut self, val: T) {
+    fn insert_node(&mut self, val: T) {
         self.do_insert(val);
     }
     // 删除节点：调用私用方法
-    fn delete(&mut self, val: T) -> Self {
+    fn delete_node(&mut self, val: T) -> Self {
         let mut val = Val(val);
         self.do_delete(&mut val);
         match val {
             Del(node) => node,
             _ => unreachable!(),
+        }
+    }
+    // 判断该树是不是AVL，返回true或者false
+    fn validate_tree(tree: &AvlTreeNode<T>) -> bool {
+        if let Some(root) = tree {
+            if root.height != max(root.left.height(), root.right.height()) + 1 {
+                return false;
+            }
+            if tree.balance_factor().abs() > 1 {
+                return false;
+            }
+            if let Some(x) = &root.left {
+                if !(x.val < root.val && Self::validate_tree(&root.left)) {
+                    return false;
+                }
+            }
+            if let Some(x) = &root.right {
+                if !(x.val > root.val && Self::validate_tree(&root.right)) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    fn is_tree_empty(&self) -> bool {
+        // 但凡是有个节点，它的高度都是1，所以只要高度是0，那就是空
+        if self.as_ref().unwrap().height == 0 {
+            true
+        } else {
+            false
+        }
+    }
+
+    fn height_of_tree(&self) -> i32 {
+        let height_overall = self.as_ref().unwrap().height;
+        height_overall
+    }
+
+    fn number_of_leaves(&self) -> i32 {
+        let mut count = 0;
+        if self.is_none() {
+            count = 0;
+        } else if self.as_ref().unwrap().left.is_none() && self.as_ref().unwrap().right.is_none() {
+            count = 1;
+        } else {
+            count = &self.as_ref().unwrap().left.number_of_leaves() + &self.as_ref().unwrap().right.number_of_leaves();
+        };
+        count
+    }
+
+    fn in_order_traverse(&mut self) {
+
+        match self {
+            None => (),
+            Some(node)=>{
+                node.left.in_order_traverse();
+                print!(" {:?} ",node.val);
+                node.right.in_order_traverse();
+            }
         }
     }
 }
