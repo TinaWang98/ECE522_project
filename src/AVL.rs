@@ -69,25 +69,38 @@ trait __AvlTree<T: PartialOrd> {
     fn update_height(&mut self);
     fn balance_factor(&self) -> i32;
     fn do_insert(&mut self, val: T) -> InnerResult;
-    fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult;
+    fn do_delete(&mut self, val: &mut DeleteValue<T>, val2: &T) -> InnerResult;
     fn recursive_print(&self, prefix_space: &String, is_right: bool, child_prefix: String);
 }
 
 // 公有方法接口 (给用户调用) - public function trait
 pub trait AvlTree<T: PartialOrd> {
-    fn new(val: T) -> Self;  // 新建节点
-    fn height(&self) -> i32;  // 获取某个节点的高度
-    fn insert_node(&mut self, val: T);  // 插入节点
-    fn delete_node(&mut self, val: T) -> Self;  // 删除节点
-    fn validate_tree(tree: &AvlTreeNode<T>) -> bool;  // 是AVL树否？
-    fn is_tree_empty(&self) -> bool;  // 此树空否？
-    fn height_of_tree(&self) -> i32;  // 此树的高度
-    fn number_of_leaves(&self) -> i32;  // 叶子节点的数量
-    fn in_order_traverse(&mut self);  // 树的中序遍历
-    fn pre_order_traverse(&mut self);  // 树的前序遍历
-    fn post_order_traverse(&mut self);  // 树的后序遍历
-    fn tree_diagram_print(&mut self);  // 打印树
+    fn new(val: T) -> Self;
+    // 新建节点
+    fn height(&self) -> i32;
+    // 获取某个节点的高度
+    fn insert_node(&mut self, val: T);
+    // 插入节点
+    fn delete_node(&mut self, val: T) -> Self;
+    // 删除节点
+    fn validate_tree(tree: &AvlTreeNode<T>) -> bool;
+    // 是AVL树否？
+    fn is_tree_empty(&self) -> bool;
+    // 此树空否？
+    fn height_of_tree(&self) -> i32;
+    // 此树的高度
+    fn number_of_leaves(&self) -> i32;
+    // 叶子节点的数量
+    fn in_order_traverse(&mut self);
+    // 树的中序遍历
+    fn pre_order_traverse(&mut self);
+    // 树的前序遍历
+    fn post_order_traverse(&mut self);
+    // 树的后序遍历
+    fn tree_diagram_print(&mut self);
+    // 打印树
 }
+
 // 实现私有方法
 impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     //         y                            x
@@ -256,13 +269,14 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         }
     }
 
-    fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult {
+    fn do_delete(&mut self, val: &mut DeleteValue<T>, val2: &T) -> InnerResult {
         // 核心思想: Hibbard Deletion - 当待删除节点左右都不为空时，首先找到以待删除节点为根的子树，其次找到最接近它的值的节点，用这个节点来替换
         // e.g. 我要删除59这个节点，最优解是找到58或者60(左侧找最大，右侧找最小)
         match self {
             // 如果这个地方没有值，那就"什么都不做"
             None => {
                 *val = Del(None); // 用delete(None)代表do nothing
+                println!("No such node({:?}) to delete", val2);
                 Balanced
             }
             // 如果有
@@ -277,7 +291,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                             // 找到左右两侧中高度最高的那颗子树拿取替补节点，减少对平衡性的损坏
                             if root.left.height() > root.right.height() {
                                 *val = Max;  // 找到左侧最大值，这里不用担心目标值val会被覆盖，因为"val==root"
-                                root.left.do_delete(val); // 在左侧子树中删除这个"最大节点"并返回这个节点
+                                root.left.do_delete(val, val2); // 在左侧子树中删除这个"最大节点"并返回这个节点
                                 match val {
                                     // 如果有返回值Del<Node<T>>，就将这个"最大节点"和"待删除节点交换"，让"最大节点"进入"待删除节点交换"的原有位置
                                     Del(Some(node)) => {
@@ -288,7 +302,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                             } else {
                                 // 如果是右侧子树最高，那么就在右侧子树中找最小值
                                 *val = Min;
-                                root.right.do_delete(val);  // 删除这个最小值并返回
+                                root.right.do_delete(val, val2);  // 删除这个最小值并返回
                                 match val {
                                     // 如果返回值不为空，那么就将这个"最小节点"和"待删除节点交换"，让"最小节点"进入"待删除节点交换"的原有位置
                                     Del(Some(x)) => {
@@ -313,7 +327,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                     }
                     self.update_height();  // 捣鼓完了更新一下节点高度
                 } else if val < root {  // Case 2: 待删除的值比当前节点的值要小，进入左子树递归删除
-                    match root.left.do_delete(val) {  // 递归的向左侧子树进行删除操作，当找到后待删除节点后会执行Case 1的代码并返回结果(balance or not?)
+                    match root.left.do_delete(val, val2) {  // 递归的向左侧子树进行删除操作，当找到后待删除节点后会执行Case 1的代码并返回结果(balance or not?)
                         Balanced => return Balanced,  // 如果删除完了还是balance，那就什么都不做
                         Unknown => {  // 如果不平衡了就要自旋转来维护平衡
                             if self.balance_factor() == -2 {  // 左侧删除完之后右侧会变高
@@ -330,7 +344,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                         _ => unreachable!(),
                     }
                 } else {  // val>root，进入右子树递归删除
-                    match root.right.do_delete(val) {
+                    match root.right.do_delete(val, val2) {
                         Balanced => return Balanced,
                         Unknown => {
                             if self.balance_factor() == 2 {
@@ -407,14 +421,17 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
     // 删除节点：调用私用方法
     fn delete_node(&mut self, val: T) -> Self {
+        let val2 = val.clone();
         let mut val = Val(val);
-        self.do_delete(&mut val);
+        self.do_delete(&mut val, &val2);
         match val {
-            Del(node) => node,
-            _ => {
-                println!("Can not delete");
-                None
-            },
+            Del(node) => {
+                if node.is_some() {
+                    println!("Node({:?}) deleted successfully.", val2);
+                }
+                node
+            }
+            _ => unreachable!()
         }
     }
     // 判断该树是不是AVL，返回true或者false
@@ -451,7 +468,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
 
     fn height_of_tree(&self) -> i32 {
         if self.is_none() {
-            return 0
+            return 0;
         }
         let height_overall = self.as_ref().unwrap().height;
         height_overall
@@ -472,9 +489,9 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     fn in_order_traverse(&mut self) {
         match self {
             None => (),
-            Some(node)=>{
+            Some(node) => {
                 node.left.in_order_traverse();
-                print!(" {:?} ",node.val);
+                print!(" {:?} ", node.val);
                 node.right.in_order_traverse();
             }
         }
@@ -483,9 +500,9 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     fn pre_order_traverse(&mut self) {
         match self {
             None => (),
-            Some(node)=>{
+            Some(node) => {
                 // 先当前再左再右
-                print!(" {:?} ",node.val);
+                print!(" {:?} ", node.val);
                 node.left.pre_order_traverse();
                 node.right.pre_order_traverse();
             }
@@ -495,11 +512,11 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     fn post_order_traverse(&mut self) {
         match self {
             None => (),
-            Some(node)=>{
+            Some(node) => {
                 // 先左再右再当前
                 node.left.post_order_traverse();
                 node.right.post_order_traverse();
-                print!(" {:?} ",node.val);
+                print!(" {:?} ", node.val);
             }
         }
     }

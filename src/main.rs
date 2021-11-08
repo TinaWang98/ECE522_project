@@ -36,43 +36,76 @@ fn main() {
     */
 
     // =========== AVL Tree Sample Test ==========
-    let mut avl_tree = None;
+    // let mut avl_tree = None;
+    //
+    // for i in vec![10, 4, 7, 1, 3, 8, 9].into_iter() {
+    //     avl_tree.insert_node(i);
+    // }
+    //
+    // //       7
+    // //      / \
+    // //     3   9
+    // //   / \  / \
+    // //  1  4 8  10
+    // // avl_tree.delete_node(9);
+    // //       7
+    // //      / \
+    // //     3   10
+    // //   / \  /
+    // //  1  4 8
+    // // println!("{:#?}", avl_tree);
+    //
+    // if AvlTreeNode::validate_tree(&avl_tree) {
+    //     println!("树是AVL");
+    // } else { println!("不是AVL树！") }
+    //
+    // if avl_tree.is_tree_empty() {
+    //     println!("树是空的");
+    // } else { println!("不是空的树") }
+    //
+    // println!("叶子节点的数量：{}", avl_tree.number_of_leaves());
+    // println!("树的高度是:{}", avl_tree.height_of_tree());
+    //
+    // println!("中序：");
+    // avl_tree.in_order_traverse();
+    // println!("\n前序：");
+    // avl_tree.pre_order_traverse();
+    // println!("\n后序：");
+    // avl_tree.post_order_traverse();
+    // println!("\n");
+    //
+    // avl_tree.tree_diagram_print();
 
-    for i in vec![10, 4, 7, 1, 3, 8, 9].into_iter() {
-        avl_tree.insert_node(i);
+    let mut avl_t2 = None;
+    for i in vec![3, 6, 5, 8, 11] {
+        avl_t2.insert_node(i);
     }
+    avl_t2.tree_diagram_print();
+    println!("Number of leaves: {}", avl_t2.number_of_leaves());
 
-    //       7
-    //      / \
-    //     3   9
-    //   / \  / \
-    //  1  4 8  10
-    // avl_tree.delete_node(9);
-    //       7
-    //      / \
-    //     3   10
-    //   / \  /
-    //  1  4 8
-    println!("{:#?}", avl_tree);
+    println!("Height of tree: {}", avl_t2.height_of_tree());
 
-    if AvlTreeNode::validate_tree(&avl_tree) {
-        println!("树是AVL");
-    } else { println!("不是AVL树！") }
+    println!("In Order Traverse:");
+    avl_t2.in_order_traverse();
 
-    if avl_tree.is_tree_empty() {
-        println!("树是空的");
-    } else { println!("不是空的树") }
+    println!("\nPre Order Traverse:");
+    avl_t2.pre_order_traverse();
 
-    println!("叶子节点的数量：{}", avl_tree.number_of_leaves());
-    println!("树的高度是:{}", avl_tree.height_of_tree());
-
-    println!("中序：");
-    avl_tree.in_order_traverse();
-    println!("\n前序：");
-    avl_tree.pre_order_traverse();
-    println!("\n后序：");
-    avl_tree.post_order_traverse();
+    println!("\nPost Order Traverse:");
+    avl_t2.post_order_traverse();
     println!("\n");
 
-    avl_tree.tree_diagram_print();
+    if avl_t2.is_tree_empty() { println!("Tree is Empty") } else { println!("Not empty!") }
+
+
+    avl_t2.delete_node(6);
+    avl_t2.delete_node(5);
+    avl_t2.tree_diagram_print();
+    let s = avl_t2.delete_node(8);
+    println!("{:?}", s);
+
+    avl_t2.delete_node(100);
+
+
+
 }
