@@ -95,17 +95,15 @@ fn main() {
     avl_t2.post_order_traverse();
     println!("\n");
 
-    if avl_t2.is_tree_empty() { println!("Tree is Empty") } else { println!("Not empty!") }
+    if avl_t2.is_tree_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
 
 
     avl_t2.delete_node(6);
     avl_t2.delete_node(5);
-    avl_t2.tree_diagram_print();
     let s = avl_t2.delete_node(8);
-    println!("{:?}", s);
-
+    println!("The deleted node contains {:?}", s);
+    avl_t2.delete_node(3);
     avl_t2.delete_node(100);
 
-
-
+    avl_t2.tree_diagram_print();
 }

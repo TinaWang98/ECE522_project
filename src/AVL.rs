@@ -427,7 +427,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         match val {
             Del(node) => {
                 if node.is_some() {
-                    println!("Node({:?}) deleted successfully.", val2);
+                    println!("Node({:?}) delete successfully.", val2);
                 }
                 node
             }
@@ -521,7 +521,8 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         }
     }
     fn tree_diagram_print(&mut self) {
-        println!("\nPrinting Tree in format <Left/Right Child> <Node Key> <Node Height>");
+        println!("\n================== TREE PRINT <Node:Height> ==================");
         self.recursive_print(&"".to_string(), false, "Root".to_string());
+        println!("\n================== FINISH PRINT ==================");
     }
 }
