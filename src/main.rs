@@ -73,4 +73,6 @@ fn main() {
     println!("\n后序：");
     avl_tree.post_order_traverse();
     println!("\n");
+
+    avl_tree.tree_diagram_print();
 }

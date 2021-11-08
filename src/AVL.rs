@@ -70,6 +70,7 @@ trait __AvlTree<T: PartialOrd> {
     fn balance_factor(&self) -> i32;
     fn do_insert(&mut self, val: T) -> InnerResult;
     fn do_delete(&mut self, val: &mut DeleteValue<T>) -> InnerResult;
+    fn recursive_print(&self, prefix_space: &String, is_right: bool, child_prefix: String);
 }
 
 // 公有方法接口 (给用户调用) - public function trait
@@ -356,6 +357,31 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
             }
         }
     }
+
+    fn recursive_print(&self, prefix_space: &String, is_right: bool, child_prefix: String) {
+        if self.is_none() {
+            let null_prefix = if is_right { "└ " } else { "├ " };
+            println!("{}{}{} {}", prefix_space, null_prefix, child_prefix, "null");
+            return;
+        }
+
+        let node = self.as_ref().unwrap();
+        let prefix_current = if is_right { "└ " } else { "├ " }; // Always prints L-node first then R-node
+
+        // Print the current node
+        println!(
+            "{}{}{} {:?} : {}",
+            prefix_space, prefix_current, child_prefix, self.as_ref().unwrap().val, node.height
+        );
+
+        // Increase the space
+        let prefix_child = if is_right { "  " } else { "| " }; // back up symbol: ┤
+        let mut prefix_space = prefix_space.to_owned();
+        prefix_space.push_str(&prefix_child);
+
+        self.as_ref().unwrap().left.recursive_print(&prefix_space, false, "🅻 ".to_string());
+        self.as_ref().unwrap().right.recursive_print(&prefix_space, true, "🆁 ".to_string());
+    }
 }
 
 impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
@@ -385,7 +411,10 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         self.do_delete(&mut val);
         match val {
             Del(node) => node,
-            _ => unreachable!(),
+            _ => {
+                println!("Can not delete");
+                None
+            },
         }
     }
     // 判断该树是不是AVL，返回true或者false
@@ -421,6 +450,9 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn height_of_tree(&self) -> i32 {
+        if self.is_none() {
+            return 0
+        }
         let height_overall = self.as_ref().unwrap().height;
         height_overall
     }
@@ -441,7 +473,6 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         match self {
             None => (),
             Some(node)=>{
-                // 先左再当前再右
                 node.left.in_order_traverse();
                 print!(" {:?} ",node.val);
                 node.right.in_order_traverse();
@@ -473,6 +504,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         }
     }
     fn tree_diagram_print(&mut self) {
-        todo!()
+        println!("\nPrinting Tree in format <Left/Right Child> <Node Key> <Node Height>");
+        self.recursive_print(&"".to_string(), false, "Root".to_string());
     }
 }
