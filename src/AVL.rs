@@ -99,6 +99,8 @@ pub trait AvlTree<T: PartialOrd> {
     // 树的后序遍历
     fn tree_diagram_print(&mut self);
     // 打印树
+    fn exist_or_not(&mut self, val: T) -> bool;
+    // 某个元素是否存在
 }
 
 // 实现私有方法
@@ -393,8 +395,8 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         let mut prefix_space = prefix_space.to_owned();
         prefix_space.push_str(&prefix_child);
 
-        self.as_ref().unwrap().left.recursive_print(&prefix_space, false, "🅻 ".to_string());
-        self.as_ref().unwrap().right.recursive_print(&prefix_space, true, "🆁 ".to_string());
+        self.as_ref().unwrap().left.recursive_print(&prefix_space, false, "🅻".to_string());  // 🅻
+        self.as_ref().unwrap().right.recursive_print(&prefix_space, true, "🆁 ".to_string());  // 🆁
     }
 }
 
@@ -524,5 +526,19 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         println!("\n================== TREE PRINT <Node:Height> ==================");
         self.recursive_print(&"".to_string(), false, "Root".to_string());
         println!("\n================== FINISH PRINT ==================");
+    }
+
+    fn exist_or_not(&mut self, val: T) -> bool {
+        return match self {
+            None => false,
+            Some(node) => {
+                node.left.in_order_traverse();
+                if node.val == val {
+                    return true;
+                }
+                node.right.in_order_traverse();
+                false
+            }
+        }
     }
 }
