@@ -1,4 +1,4 @@
-use crate::AVL::{AvlTree, AvlTreeNode};
+use crate::AVL::{AvlTree};
 
 mod AVL;
 

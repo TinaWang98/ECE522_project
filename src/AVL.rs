@@ -1,7 +1,6 @@
 use core::cmp::{max, Ordering};
 use core::mem::swap;
-use std::borrow::Borrow;
-use std::fmt::{Debug, Display};
+use std::fmt::{Debug};
 
 use DeleteValue::*;
 use InnerResult::*;
