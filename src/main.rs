@@ -37,7 +37,7 @@ fn main() {
 
     // =========== AVL Tree Sample Test ==========
     let mut avl_t2 = None;
-    for i in vec![3, 6, 5, 8, 11] {
+    for i in vec![1, 6, 5, 2, 7, 4] {
         avl_t2.insert_node(i);
     }
     avl_t2.tree_diagram_print();
@@ -59,10 +59,10 @@ fn main() {
 
 
     avl_t2.delete_node(6);
-    avl_t2.delete_node(5);
-    let s = avl_t2.delete_node(8);
-    println!("The deleted Node(8) contains {:?}", s);
-    avl_t2.delete_node(3);
+    avl_t2.delete_node(2);
+    let s = avl_t2.delete_node(7);
+    println!("The deleted Node(7) contains {:?}", s);
+    avl_t2.delete_node(4);
     avl_t2.delete_node(100);
 
     println!("Does Node(11) exist? {}", avl_t2.exist_or_not(11));

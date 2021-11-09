@@ -531,13 +531,13 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         return match self {
             None => false,
             Some(node) => {
-                node.left.in_order_traverse();
+                node.left.exist_or_not(val);
                 if node.val == val {
                     return true;
                 }
-                node.right.in_order_traverse();
+                node.right.exist_or_not(val);
                 false
             }
-        }
+        };
     }
 }
