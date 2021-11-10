@@ -1,5 +1,5 @@
 use crate::AVL::{AvlTree};
-
+mod RBTree;
 mod AVL;
 
 fn main() {

@@ -2,3 +2,4 @@
 // 并且将mod设为公有，这样就可以在../benches文件夹中调用
 pub mod AVL;
 pub mod BST; // use ECE522_project::AVL::AvlTree; <- my_benchmark.rs
+pub mod RBTree;
