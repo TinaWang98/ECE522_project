@@ -294,7 +294,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                                 *val = Max;  // 找到左侧最大值，这里不用担心目标值val会被覆盖，因为"val==root"
                                 root.left.do_delete(val, val2); // 在左侧子树中删除这个"最大节点"并返回这个节点
                                 match val {
-                                    // 如果有返回值Del<Node<T>>，就将这个"最大节点"和"待删除节点交换"，让"最大节点"进入"待删除节点交换"的原有位置
+                                    // 如果有返回值Del<Node<T>>，就将这个"最大节点"和"待删除节点"交换，让"最大节点"进入"待删除节点"的原有位置
                                     Del(Some(node)) => {
                                         swap(&mut root.val, &mut node.val);
                                     }
@@ -305,7 +305,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                                 *val = Min;
                                 root.right.do_delete(val, val2);  // 删除这个最小值并返回
                                 match val {
-                                    // 如果返回值不为空，那么就将这个"最小节点"和"待删除节点交换"，让"最小节点"进入"待删除节点交换"的原有位置
+                                    // 如果返回值不为空，那么就将这个"最小节点"和"待删除节点"交换，让"最小节点"进入"待删除节点"的原有位置
                                     Del(Some(x)) => {
                                         swap(&mut root.val, &mut x.val);
                                     }
@@ -524,7 +524,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     fn tree_diagram_print(&mut self) {
         println!("\n================== TREE PRINT <Node:Height> ==================");
         self.recursive_print(&"".to_string(), false, "Root".to_string());
-        println!("\n================== FINISH PRINT ==================");
+        println!("\n======================== FINISH PRINT ========================");
     }
 
     fn exist_or_not(&mut self, val: T) -> bool {
