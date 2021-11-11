@@ -2,6 +2,17 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use ECE522_project::AVL::AvlTree;
 use ECE522_project::BST;
 
+pub fn test_rb_search(n: i32) {
+    let mut tree: RBTree<i32> = RBTree::new();
+    for i in 0..n {
+        tree.insert(i);
+    }
+    let end = n/10;
+    for j in 0..end {
+        tree.search_node(j);
+    }
+}
+
 pub fn test_avl_tree(tree_size: i32) {
     let mut avl_t2 = None;
     for i in 0..tree_size {
