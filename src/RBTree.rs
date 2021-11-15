@@ -26,7 +26,7 @@ struct RBTree{
 impl<T:Ord> TreeNode<T> {
     fn new(val: T) -> Self {
         TreeNode {
-            color: NodeColor::Black,
+            color: NodeColor::Red,
             key: val,
             parent: None,
             left: None,
@@ -476,6 +476,7 @@ impl RBTree{
                             RBTree::reset_color(&mut node_s.as_ref().unwrap(),p_color);
                             //do right rotation to node_p
                             self.right_rotation(node_p.as_ref().unwrap());
+                            RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }else {
                             //node_s is right, and left child of node_s is red RL
                             let p_color = RBTree::get_color(node_p.as_ref().unwrap());
@@ -484,6 +485,7 @@ impl RBTree{
                             //do right_rotation to node_s, do left_rotation to node_p
                             self.right_rotation(node_s.as_ref().unwrap());
                             self.left_rotation(node_p.as_ref().unwrap());
+                            RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }
                     }else{
                         if RBTree::is_left_side(node_s.as_ref().unwrap()){
@@ -494,6 +496,7 @@ impl RBTree{
                             //do left_rotation to node_s, do right_rotation to node_p
                             self.left_rotation(node_s.as_ref().unwrap());
                             self.right_rotation(node_p.as_ref().unwrap());
+                            RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }else {
                             //node_s is right, the right child of node_s is red RR
                             let s_color = RBTree::get_color(node_s.as_ref().unwrap());
@@ -503,12 +506,13 @@ impl RBTree{
                             RBTree::reset_color(&mut node_s.as_ref().unwrap(),p_color);
                             //do left_rotation to node_p
                             self.left_rotation(node_p.as_ref().unwrap());
+                            RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }
                     }
-                    RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
+
                 }else {
                     //2 black children
-                    RBTree::reset_color(&mut node_s.as_ref().unwrap(),NodeColor::Black);
+                    RBTree::reset_color(&mut node_s.as_ref().unwrap(),NodeColor::Red);
                     if RBTree::get_color(node_p.as_ref().unwrap())== NodeColor::Black{
                         self.adjust_double_black(node_p.as_ref().unwrap());
                     }else {
@@ -528,6 +532,7 @@ impl RBTree{
                     // s is right child,node_p do left rotation
                     self.left_rotation(node_p.as_ref().unwrap());
                 }
+                self.adjust_double_black(node);
             }
         }
     }
@@ -549,5 +554,52 @@ impl RBTree{
         let mut node_to_delete = option_node_to_delete.as_ref().unwrap();
         self.private_delete_node(&mut node_to_delete)
     }
+    fn vec_nodes_in_order(&self) -> Vec<u32>{
+        let mut vec = Vec::new();
+        self.nodes_in_order(&self.root,&mut vec);
+        vec
+    }
 
+    fn nodes_in_order(&self,node:&RedBlackTree,vec:&mut Vec<u32>){
+        if node.is_none(){
+            return;
+        }
+        let node = node.as_ref().unwrap().borrow_mut();
+        self.nodes_in_order(&node.left,vec);
+        vec.push(node.key);
+        self.nodes_in_order(&node.right,vec);
+    }
+    pub fn print_in_order_traversal(&self){
+        if self.is_empty(){
+            print!("The RBTree is null");
+        }else {
+            let mut vec = Vec::new();
+            self.nodes_in_order(&self.root,&mut vec);
+            println!("{:?}",vec);
+        }
+    }
+
+    fn recursion_print(node:&RedBlackTree,pre_space:&String,is_left:bool,child_pre:String){
+        if node.is_none(){
+            let none_pre = if is_left {"├ "} else { "└ " };
+            println!("{}{}{} {}",pre_space,none_pre,child_pre,"null");
+            return;
+        }
+        let node = node.as_ref().unwrap().borrow();
+        let col = if node.color==NodeColor::Black{"Black"} else { "Red" };
+        let pre_current = if is_left {"├ "} else { "└ " };
+        println!("{}{}{} {}:{}",pre_space,pre_current,child_pre,node.key,col);
+
+        let pre_child = if is_left {"┤ "} else { " " };
+        let mut pre_space = pre_space.to_owned();
+        pre_space.push_str(&pre_child);
+
+        RBTree::recursion_print(&node.left,&pre_space,true,"🅻".to_string());
+        RBTree::recursion_print(&node.right,&pre_space,false,"🆁".to_string());
+    }
+    pub fn print_tree(&self){
+        println!("The RbTree will be printed in format <L/R> <Key>:<Color>");
+        RBTree::recursion_print(&self.root,&"".to_string(),true,"Root".to_string());
+    }
 }
+
