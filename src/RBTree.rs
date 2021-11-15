@@ -26,7 +26,7 @@ struct RBTree{
 impl<T:Ord> TreeNode<T> {
     fn new(val: T) -> Self {
         TreeNode {
-            color: NodeColor::Black,
+            color: NodeColor::Red,
             key: val,
             parent: None,
             left: None,
