@@ -3,15 +3,16 @@ use std::rc::Rc;
 use std::panic::panic_any;
 use std::slice::RChunks;
 
-
-
 #[derive(Clone, Debug, PartialEq)]
+
 pub enum NodeColor {
     Red,
     Black,
 }
+
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type RedBlackTree= Option<Tree>;
+
 struct TreeNode<T> {
     pub color: NodeColor,
     pub key: T,
@@ -19,11 +20,13 @@ struct TreeNode<T> {
     left: RedBlackTree,
     right: RedBlackTree,
 }
+
 struct RBTree{
     root:RedBlackTree,
 }
+
 /************TreeNode***************/
-impl<T:Ord> TreeNode<T> {
+impl<T:Ord+Clone> TreeNode<T> {
     fn new(val: T) -> Self {
         TreeNode {
             color: NodeColor::Red,
@@ -33,40 +36,7 @@ impl<T:Ord> TreeNode<T> {
             right: None,
         }
     }
-}
-/***********RbTree****************/
-impl RBTree{
-    fn new() -> Self{
-        RBTree{
-            root:None,
-        }
-    }
-    pub fn insert(&mut self, val: T) -> bool {
-        //return a bool for testing
-        match &mut self.root {
-            Some(node) => {
-                //insert
-                let ins = inserted(node, val);
-                if let Some(insert_node) = ins {
-                    //balance
-                    insert_rebalance(node, &insert_node);
-                    self.len += 1;
-                    return true
-                } else {
-                    return false
-                }
-            }
-
-            //handle a new tree
-            None => {
-                self.root = Some(Rc::new(RefCell::new(RBTreeNode::new(NodeColor::Black, val))));
-                self.len += 1;
-                return true
-            }
-        }
-    }
-
-    fn inserted<T: Ord + Display + Clone>(pre_node: &mut Node<T>, val: T) -> OptionNode<T> {
+    fn inserted(pre_node: &mut Tree, val: u32) -> RedBlackTree {
         if (*pre_node.borrow()).key == val {
             //return if val is already in the tree
             return Option::None;
@@ -76,13 +46,16 @@ impl RBTree{
             let mut left_node = &mut (*pre_node.borrow_mut()).left;
             match &mut left_node {
                 //recursively
-                Some(pre_node) => return inserted(pre_node, val),
+                Some(node) => return TreeNode::<u32>::inserted(node, val),
 
                 //reaches the end
                 None => {
-                    let insert_node = Rc::new(RefCell::new(RBTreeNode::new(NodeColor::Red, val)));
+                    //颜色？？？
+                    let insert_node = Rc::new(RefCell::new(TreeNode::new(val)));
                     *left_node = Some(Rc::clone(&insert_node));
-                    (*insert_node.borrow_mut()).parent = Some(Rc::downgrade(&pre_node));
+
+                    (*insert_node.borrow_mut()).parent = Some(Rc::clone(&pre_node));
+
                     return Some(Rc::clone(&insert_node));
                 }
             }
@@ -91,82 +64,82 @@ impl RBTree{
             let mut right_node = &mut (*pre_node.borrow_mut()).right;
             match &mut right_node {
                 //recursively
-                Some(pre_node) => return inserted(pre_node, val),
+                Some(node) => return TreeNode::<u32>::inserted(node, val),
 
                 //reaches the end
                 None => {
-                    let insert_node = Rc::new(RefCell::new(RBTreeNode::new(NodeColor::Red, val)));
+                    let insert_node = Rc::new(RefCell::new(TreeNode::new(val)));
                     *right_node = Some(Rc::clone(&insert_node));
-                    (*insert_node.borrow_mut()).parent = Some(Rc::downgrade(&pre_node));
+                    (*insert_node.borrow_mut()).parent = Some(Rc::clone(&pre_node));
                     return Some(Rc::clone(&insert_node));
                 }
             }
         }
     }
 
-    fn insert_rebalance<T: Ord + Display + Clone>(root_node: &mut Node<T>, insert_node: &Node<T>) {
+    fn insert_rebalance(root_node: &mut RedBlackTree, insert_node: &Tree) {
         let mut current = Rc::clone(insert_node);
-        while let Some(mut parent_node) = get_parent(current) {
+        while let Some(mut parent_node) = RBTree::get_parent(&current) {
             //check exist for parent_node
             if (*parent_node.borrow()).color == NodeColor::Red {
-                //another family members
-                let grandparent = parent_node.borrow().parent.as_ref().unwrap().upgrade().unwrap();
+                //let grandparent = parent_node.borrow().parent.as_ref().unwrap().upgrade().unwrap();
+                let grandparent = TreeNode::<u32>::get_grandparent(&current);
                 if let Some(grandparent) = grandparent {
-                    if is_left_side(parent_node) {
+                    if RBTree::is_left_side(&parent_node) {
                         //when uncle node is red
-                        //another family members
-                        let uncle = &(*grandparent.borrow()).right.clone();
-                        if let Some(uncle) = uncle {
-                            if (*uncle.borrow()).color == NodeColor::Red {
+
+                        let mut uncle = (*grandparent.borrow()).right.clone();
+                        if let Some(uncle) = uncle{
+                            if (*uncle.borrow_mut()).color == NodeColor::Red {
                                 //when uncle node is red
-                                reset_color(&mut uncle, NodeColor::Black);
-                                reset_color(&mut parent_node, NodeColor::Black);
-                                reset_color(&mut grandparent, NodeColor::Red);
+                                RBTree::reset_color(&mut &uncle, NodeColor::Black);
+                                RBTree::reset_color(&mut &parent_node, NodeColor::Black);
+                                RBTree::reset_color(&mut &grandparent, NodeColor::Red);
                                 current = Rc::clone(&grandparent);
                                 continue;
                             }
                         }
 
                         //when current node is the right child of parent_node and uncle node is balck
-                        if !is_left_side(current) {
-                            left_rotation(parent_node);
+                        if !RBTree::is_left_side(&current) {
+                            RBTree::left_rotation(root_node,&parent_node); //?????????????????????
                             let n = Rc::clone(&parent_node);
                             parent_node = Rc::clone(&current);
                             current = Rc::clone(&n);
                         }
 
                         //when current node is the left child of parent node and uncle node is black
-                        reset_color(&mut parent_node, NodeColor::Black);
-                        reset_color(&mut grandparent, NodeColor::Red);
-                        right_rotation(grandparent);
+                        RBTree::reset_color(&mut &parent_node, NodeColor::Black);
+                        RBTree::reset_color(&mut &grandparent, NodeColor::Red);
+                        RBTree::right_rotation(root_node,&grandparent);
 
                     //when parent is the right child
                     } else {
 
                         //when uncle node is red
-                        let mut uncle = &(*grandparent.borrow()).left.clone();
+                        let mut uncle = (*grandparent.borrow()).left.clone();
                         if let Some(uncle) = uncle {
                             if (*uncle.borrow()).color == NodeColor::Red {
-                                reset_color(&mut uncle, NodeColor::Black);
-                                reset_color(&mut parent_node, NodeColor::Black);
-                                reset_color(&mut grandparent, NodeColor::Red);
+                                RBTree::reset_color(&mut &uncle, NodeColor::Black);
+                                RBTree::reset_color(&mut &parent_node, NodeColor::Black);
+                                RBTree::reset_color(&mut &grandparent, NodeColor::Red);
                                 current = Rc::clone(&grandparent);
                                 continue;
                             }
                         }
                         //when current node is the left child of parent_node
                         //the uncle node is black
-                        if is_left_side(current) {
-                            right_rotation(parent_node);
+                        if RBTree::is_left_side(&current) {
+                            RBTree::right_rotation(root_node,&parent_node);
                             let n = Rc::clone(&parent_node);
                             parent_node = Rc::clone(&current);
                             current = Rc::clone(&n);
                         }
                         //when uncle node is black
                         //when current node is the right child of parent_node
-                        reset_color(&mut parent_node, NodeColor::Black);
-                        reset_color(&mut grandparent, NodeColor::Red);
-                        left_rotate(grandparent);
+                        RBTree::reset_color(&mut &parent_node, NodeColor::Black);
+                        RBTree::reset_color(&mut &grandparent, NodeColor::Red);
+                        RBTree::left_rotation(root_node,&grandparent);
                     }
                 }
             } else {
@@ -175,19 +148,65 @@ impl RBTree{
             }
         }
         //set root node black
-        (*root_node.borrow_mut()).color = NodeColor::Black;
+        RBTree::reset_color(&mut root_node.as_ref().unwrap(),NodeColor::Black);
+        //root_node.color = NodeColor::Black;
     }
 
-    fn get_grandparent<T: Ord + Display + Clone>(node: &Node<T>) -> OptionNode<T> {
+    fn get_grandparent(node: &Tree) -> RedBlackTree {
         // get_parent(node).and_then(|par| get_parent(&par))    //........
-        let par = get_parent(node);
-        if let Some(par) = par {
+        let temp = RBTree::get_parent(node);
+        if let Some(new_parent) = temp {
             // println!("parent exists");
-            return get_parent(&par);
+            return RBTree::get_parent(&new_parent);
         } else {
             return Option::None;
         }
     }
+
+
+}
+
+/***********RbTree****************/
+impl RBTree{
+
+    fn new() -> Self{
+        RBTree{
+            root:None,
+        }
+    }
+
+    pub fn insert(&mut self, val: u32) -> bool {
+        //return a bool for testing
+
+        match &mut self.root {
+            Some(node) => {
+                //insert
+                let ins = TreeNode::<u32>::inserted(node, val);
+                if let Some(insert_node) = ins {
+                    //balance
+                    TreeNode::<u32>::insert_rebalance(&mut self.root, &insert_node);
+                    //self.len += 1;
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            //handle a new tree
+            None => {
+                //颜色？？
+                self.root = Some(Rc::new(RefCell::new(TreeNode::new(val))));
+                //self.len += 1;
+                return true
+            }
+        }
+    }
+
+
+
+
+
+
 
     fn is_left_side(option_node:&Tree) -> bool{
         let node = option_node.borrow();
@@ -198,6 +217,7 @@ impl RBTree{
             None => false,
         }
     }
+
     fn get_sibiling_node(node_p:&Tree) ->RedBlackTree {
         let node = node_p.borrow();
         if node.parent.is_some(){
@@ -210,6 +230,7 @@ impl RBTree{
         }
         return None;
     }
+
     fn get_parent(node_p:&Tree) ->RedBlackTree {
         let node = node_p.borrow();
         if node.parent.is_some(){
@@ -217,6 +238,7 @@ impl RBTree{
         }
         return None;
     }
+
     fn get_color(node:&Tree) -> NodeColor{
         let node = node.borrow();
         if node.color == NodeColor::Red{
@@ -286,12 +308,12 @@ impl RBTree{
         }
         RBTree::private_get_height(&self.root)
     }
-    fn left_rotation(&mut self,node:&Tree){
+    fn left_rotation(root: &mut RedBlackTree,node:&Tree){
         {
             let parent_option = &node.borrow().parent;
             let right_option = &node.borrow().right;
             if node.borrow().parent.is_none(){
-                self.root = right_option.clone();
+                *root = right_option.clone();
             }
             if let Some(parent_node) = parent_option{
                 if RBTree::is_left_side(node){
@@ -314,12 +336,13 @@ impl RBTree{
         }
         right_node.borrow_mut().left = Some(node.clone());
     }
-    fn right_rotation(&mut self,node:&Tree){
+
+    fn right_rotation(root: &mut RedBlackTree,node:&Tree){
         {
             let parent_option = &node.borrow().parent;
             let left_option = &node.borrow().left;
             if node.borrow().parent.is_none(){
-                self.root = left_option.clone();
+                *root = left_option.clone();
             }
             if let Some(parent_node) = parent_option{
                 if RBTree::is_left_side(node){
@@ -475,7 +498,7 @@ impl RBTree{
                             RBTree::reset_color(&mut node_s.as_ref().unwrap().borrow_mut().left.as_ref().unwrap(),s_color);
                             RBTree::reset_color(&mut node_s.as_ref().unwrap(),p_color);
                             //do right rotation to node_p
-                            self.right_rotation(node_p.as_ref().unwrap());
+                            RBTree::right_rotation(&mut self.root,node_p.as_ref().unwrap());
                             RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }else {
                             //node_s is right, and left child of node_s is red RL
@@ -483,8 +506,8 @@ impl RBTree{
                             //reset the color of left child of node_s to p_color
                             RBTree::reset_color(&mut node_s.as_ref().unwrap().borrow_mut().left.as_ref().unwrap(),p_color);
                             //do right_rotation to node_s, do left_rotation to node_p
-                            self.right_rotation(node_s.as_ref().unwrap());
-                            self.left_rotation(node_p.as_ref().unwrap());
+                            RBTree::right_rotation(&mut self.root,node_s.as_ref().unwrap());
+                            RBTree::left_rotation(&mut self.root,node_p.as_ref().unwrap());
                             RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }
                     }else{
@@ -494,8 +517,8 @@ impl RBTree{
                             //reset the color of right child to p_color
                             RBTree::reset_color(&mut node_s.as_ref().unwrap().borrow_mut().right.as_ref().unwrap(),p_color);
                             //do left_rotation to node_s, do right_rotation to node_p
-                            self.left_rotation(node_s.as_ref().unwrap());
-                            self.right_rotation(node_p.as_ref().unwrap());
+                            RBTree::left_rotation(&mut self.root,node_s.as_ref().unwrap());
+                            RBTree::right_rotation(&mut self.root,node_p.as_ref().unwrap());
                             RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }else {
                             //node_s is right, the right child of node_s is red RR
@@ -505,7 +528,7 @@ impl RBTree{
                             RBTree::reset_color(&mut node_s.as_ref().unwrap().borrow_mut().right.as_ref().unwrap(),s_color);
                             RBTree::reset_color(&mut node_s.as_ref().unwrap(),p_color);
                             //do left_rotation to node_p
-                            self.left_rotation(node_p.as_ref().unwrap());
+                            RBTree::left_rotation(&mut self.root,node_p.as_ref().unwrap());
                             RBTree::reset_color(&mut node_p.as_ref().unwrap(),NodeColor::Black);
                         }
                     }
@@ -527,10 +550,10 @@ impl RBTree{
                 RBTree::reset_color(&mut node_s.as_ref().unwrap(),NodeColor::Black);
                 if RBTree::is_left_side(node_s.as_ref().unwrap()){
                     //s is left child,node_p do right rotation
-                    self.right_rotation(node_p.as_ref().unwrap());
+                    RBTree::right_rotation(&mut self.root,node_p.as_ref().unwrap());
                 }else{
                     // s is right child,node_p do left rotation
-                    self.left_rotation(node_p.as_ref().unwrap());
+                    RBTree::left_rotation(&mut self.root,node_p.as_ref().unwrap());
                 }
                 self.adjust_double_black(node);
             }
@@ -559,7 +582,6 @@ impl RBTree{
         self.nodes_in_order(&self.root,&mut vec);
         vec
     }
-
     fn nodes_in_order(&self,node:&RedBlackTree,vec:&mut Vec<u32>){
         if node.is_none(){
             return;
@@ -578,7 +600,6 @@ impl RBTree{
             println!("{:?}",vec);
         }
     }
-
     fn recursion_print(node:&RedBlackTree,pre_space:&String,is_left:bool,child_pre:String){
         if node.is_none(){
             let none_pre = if is_left {"├ "} else { "└ " };
@@ -601,5 +622,5 @@ impl RBTree{
         println!("The RbTree will be printed in format <L/R> <Key>:<Color>");
         RBTree::recursion_print(&self.root,&"".to_string(),true,"Root".to_string());
     }
-}
 
+}
