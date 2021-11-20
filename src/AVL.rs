@@ -373,29 +373,32 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         }
     }
 
-    fn recursive_print(&self, prefix_space: &String, is_right: bool, child_prefix: String) {
+    fn recursive_print(&self, prefix_space: &String, is_left: bool, child_prefix: String) {
         if self.is_none() {
-            let null_prefix = if is_right { "└ " } else { "├ " };
+            // let null_prefix = if is_right { "└ " } else { "├ " };
+            let null_prefix = if is_left { "├ " } else { "└ " };
             println!("{}{}{} {}", prefix_space, null_prefix, child_prefix, "null");
             return;
         }
 
         let node = self.as_ref().unwrap();
-        let prefix_current = if is_right { "└ " } else { "├ " }; // Always prints L-node first then R-node
+        // let prefix_current = if is_right { "└ " } else { "├ " }; // Always prints L-node first then R-node
+        let prefix_current = if is_left { "├ " } else { "└ " };
 
-        // Print the current node
+        // Print the current
         println!(
             "{}{}{} {:?} : {}",
             prefix_space, prefix_current, child_prefix, self.as_ref().unwrap().val, node.height
         );
 
-        // Increase the space
-        let prefix_child = if is_right { "  " } else { "| " }; // back up symbol: ┤
+        // adjust the space
+        // let prefix_child = if is_right { "  " } else { "| " }; // back up symbol: ┤
+        let prefix_child = if is_left { "| " } else { "  " };
         let mut prefix_space = prefix_space.to_owned();
         prefix_space.push_str(&prefix_child);
 
-        self.as_ref().unwrap().left.recursive_print(&prefix_space, false, "🅻".to_string());  // 🅻
-        self.as_ref().unwrap().right.recursive_print(&prefix_space, true, "🆁 ".to_string());  // 🆁
+        self.as_ref().unwrap().left.recursive_print(&prefix_space, true, "🅛".to_string());  // 🅻
+        self.as_ref().unwrap().right.recursive_print(&prefix_space, false, "🅡 ".to_string());  // 🆁
     }
 }
 
@@ -523,7 +526,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
     fn tree_diagram_print(&mut self) {
         println!("\n================== TREE PRINT <Node:Height> ==================");
-        self.recursive_print(&"".to_string(), false, "Root".to_string());
+        self.recursive_print(&"".to_string(), true, "Root".to_string());
         println!("\n======================== FINISH PRINT ========================");
     }
 

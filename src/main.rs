@@ -36,39 +36,40 @@ fn main() {
     */
 
     // =========== AVL Tree Sample Test ==========
-    let mut avl_t2 = None;
+    let mut avl_tree = None;
     for i in vec![1, 6, 5, 2, 7, 4] {
-        avl_t2.insert_node(i);
+        avl_tree.insert_node(i);
     }
-    avl_t2.tree_diagram_print();
-    println!("Number of leaves: {}", avl_t2.number_of_leaves());
+    avl_tree.tree_diagram_print();
+    println!("Number of leaves: {}", avl_tree.number_of_leaves());
 
-    println!("Height of tree: {}", avl_t2.height_of_tree());
+    println!("Height of tree: {}", avl_tree.height_of_tree());
 
     println!("In Order Traverse:");
-    avl_t2.in_order_traverse();
+    avl_tree.in_order_traverse();
 
     println!("\nPre Order Traverse:");
-    avl_t2.pre_order_traverse();
+    avl_tree.pre_order_traverse();
 
     println!("\nPost Order Traverse:");
-    avl_t2.post_order_traverse();
+    avl_tree.post_order_traverse();
     println!("\n");
 
-    if avl_t2.is_tree_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
+    if avl_tree.is_tree_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
 
 
-    avl_t2.delete_node(6);
-    avl_t2.delete_node(2);
-    let s = avl_t2.delete_node(7);
+    avl_tree.delete_node(6);
+    avl_tree.delete_node(2);
+    let s = avl_tree.delete_node(7);
     println!("The deleted Node(7) contains {:?}", s);
-    avl_t2.delete_node(4);
-    avl_t2.delete_node(100);
+    avl_tree.delete_node(4);
+    avl_tree.delete_node(100);
 
-    println!("Does Node(11) exist? {}", avl_t2.exist_or_not(11));
-    println!("Does Node(111) exist? {}", avl_t2.exist_or_not(111));
+    println!("Does Node(11) exist? {}", avl_tree.exist_or_not(11));
+    println!("Does Node(111) exist? {}", avl_tree.exist_or_not(111));
 
-    avl_t2.tree_diagram_print();
+    avl_tree.tree_diagram_print();
 
     // =========== RB Tree Sample Test ==========
+
 }
