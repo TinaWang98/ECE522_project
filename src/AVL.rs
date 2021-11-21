@@ -410,15 +410,15 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         } else if val.lt(&self.as_ref().unwrap().val) {
             match &self.as_ref().unwrap().left {
                 None => false,
-                Some(node) => {
-                    Self::contains_node(&Some(node.clone()), val)
+                Some(_) => {
+                    self.as_ref().unwrap().left.contains_node(val)
                 }
             }
         } else {
             match &self.as_ref().unwrap().right {
                 None => false,
-                Some(node) => {
-                    Self::contains_node(&Some(node.clone()), val)
+                Some(_) => {
+                    self.as_ref().unwrap().right.contains_node(val)
                 }
             }
         }
@@ -565,8 +565,8 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     fn exist_or_not(&self, val: T) -> bool {
         match self {
             None => false,
-            Some(node) => {
-                Self::contains_node(&Some(node.clone()), val)
+            Some(_) => {
+                self.contains_node(val)
             }
         }
     }
