@@ -20,7 +20,7 @@ struct TreeNode<T> {
     right: RedBlackTree,
 }
 
-struct RBTree {
+pub struct RBTree {
     root: RedBlackTree,
 }
 
@@ -164,15 +164,14 @@ impl<T: Ord + Clone> TreeNode<T> {
 
 /***********RbTree****************/
 impl RBTree {
-    fn new() -> Self {
+    pub fn new() -> Self {
         RBTree {
             root: None,
         }
     }
 
-    pub fn insert(&mut self, val: u32) -> bool {
+    pub fn insert_node(&mut self, val: u32) -> bool {
         //return a bool for testing
-
         match &mut self.root {
             Some(node) => {
                 //insert

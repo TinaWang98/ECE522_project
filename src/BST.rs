@@ -41,7 +41,7 @@ impl<T: Ord + Display> BSTree<T> {
         return true
     }
 
-    pub fn search(&self, value: T) -> bool{
+    pub fn search(&self, value: T) -> bool {
         match self {
             &BSTree::Node { ref data, ref left_child, ref right_child} => {
                 match value.cmp(data) {

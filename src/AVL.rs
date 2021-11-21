@@ -103,6 +103,9 @@ pub trait AvlTree<T: PartialOrd> {
     fn exist_or_not(&self, val: T) -> bool;
     // 某个元素是否存在
     fn get_inorder_list(&self) -> Vec<T>;
+    // 将中序遍历以vec形式返回
+    fn generate_empty_tree() -> Self;
+    // 生成一个空树
 }
 
 // 实现私有方法
@@ -437,7 +440,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     // 新建一个节点
     fn new(val: T) -> Self {
         Some(Box::new(TreeNode {
-            val: val,
+            val,
             height: 1,
             left: None,
             right: None,
@@ -575,5 +578,9 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         let mut inorder_list = Vec::new();
         self.inorder_to_list(&mut inorder_list);
         inorder_list
+    }
+
+    fn generate_empty_tree() -> Self {
+        Self::None
     }
 }

@@ -1,4 +1,4 @@
-use crate::AVL::{AvlTree};
+use crate::AVL::{AvlTree,AvlTreeNode};
 
 mod RBTree;
 mod AVL;
@@ -23,7 +23,7 @@ fn handle_input() -> i32 {
 
 fn run_avl_tree_sample() {
     // 添加元素并打印完整树
-    let mut avl_tree = None;
+    let mut avl_tree:AvlTreeNode<_> = AvlTree::generate_empty_tree();
     for i in vec![5, 1, 0, 6, 2, 4, 9, 3, 7] {
         avl_tree.insert_node(i);
     }
