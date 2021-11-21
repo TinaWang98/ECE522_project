@@ -46,6 +46,7 @@ fn main() {
     // 打印基础信息
     println!("Number of leaves: {}", avl_tree.number_of_leaves());
     println!("Height of tree: {}", avl_tree.height_of_tree());
+    println!("Tree? {}", AvlTree::validate_tree(&avl_tree));
     // 前中后序遍历
     println!("In Order Traverse:");
     avl_tree.in_order_traverse();

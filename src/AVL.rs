@@ -84,7 +84,7 @@ pub trait AvlTree<T: PartialOrd> {
     // 插入节点
     fn delete_node(&mut self, val: T) -> Self;
     // 删除节点
-    fn validate_tree(tree: &AvlTreeNode<T>) -> bool;
+    fn validate_tree(&self) -> bool;
     // 是AVL树否？
     fn is_tree_empty(&self) -> bool;
     // 此树空否？
@@ -470,21 +470,21 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         }
     }
     // 判断该树是不是AVL，返回true或者false
-    fn validate_tree(tree: &AvlTreeNode<T>) -> bool {
-        if let Some(root) = tree {
+    fn validate_tree(&self) -> bool {
+        if let Some(root) = self {
             if root.height != max(root.left.height(), root.right.height()) + 1 {
                 return false;
             }
-            if tree.balance_factor().abs() > 1 {
+            if self.balance_factor().abs() > 1 {
                 return false;
             }
             if let Some(x) = &root.left {
-                if !(x.val < root.val && Self::validate_tree(&root.left)) {
+                if !(x.val < root.val && self.as_ref().unwrap().left.validate_tree()) {
                     return false;
                 }
             }
             if let Some(x) = &root.right {
-                if !(x.val > root.val && Self::validate_tree(&root.right)) {
+                if !(x.val > root.val && self.as_ref().unwrap().right.validate_tree()) {
                     return false;
                 }
             }
@@ -555,6 +555,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
             }
         }
     }
+
     fn print_tree_diagram(&mut self) {
         println!("\n================== TREE PRINT <Node:Height> ==================");
         self.recursive_print(&"".to_string(), true, "Root".to_string());
@@ -570,7 +571,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         }
     }
 
-    fn get_inorder_list(&self) -> Vec<T>{
+    fn get_inorder_list(&self) -> Vec<T> {
         let mut inorder_list = Vec::new();
         self.inorder_to_list(&mut inorder_list);
         inorder_list
