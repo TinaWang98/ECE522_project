@@ -1,4 +1,5 @@
 use crate::AVL::{AvlTree};
+
 mod RBTree;
 mod AVL;
 
@@ -36,40 +37,49 @@ fn main() {
     */
 
     // =========== AVL Tree Sample Test ==========
+    // 添加元素并打印完整树
     let mut avl_tree = None;
-    for i in vec![1, 6, 5, 2, 7, 4] {
+    for i in vec![5, 8, 6, 9, 0, 2, 13, 16] {
         avl_tree.insert_node(i);
     }
-    avl_tree.tree_diagram_print();
+    avl_tree.print_tree_diagram();
+    // 打印基础信息
     println!("Number of leaves: {}", avl_tree.number_of_leaves());
-
     println!("Height of tree: {}", avl_tree.height_of_tree());
-
+    // 前中后序遍历
     println!("In Order Traverse:");
     avl_tree.in_order_traverse();
-
     println!("\nPre Order Traverse:");
     avl_tree.pre_order_traverse();
-
     println!("\nPost Order Traverse:");
     avl_tree.post_order_traverse();
     println!("\n");
-
+    // 是否为空？
     if avl_tree.is_tree_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
-
-
+    // 删除节点 -> 结果应为[8, 9, 2, 13]
+    avl_tree.delete_node(5);
     avl_tree.delete_node(6);
-    avl_tree.delete_node(2);
-    let s = avl_tree.delete_node(7);
-    println!("The deleted Node(7) contains {:?}", s);
-    avl_tree.delete_node(4);
-    avl_tree.delete_node(100);
+    let s = avl_tree.delete_node(0);
+    println!("The deleted Node(0) contains {:?}", s);
+    avl_tree.delete_node(16);
+    avl_tree.delete_node(17);
+    // 节点是否存在？
+    for i in vec![8,9,2,13,5,7,20,100] {
+        println!("Does {} exist? {}", i, avl_tree.exist_or_not(i));
+    }
+    // 删除完之后中序遍历并打印
+    println!("Get Inorder List: {:?}", avl_tree.get_inorder_list());
+    avl_tree.print_tree_diagram();
+    // 重新加入几个新元素
+    for i in vec![5, 7, 20, 100] {
+        avl_tree.insert_node(i);
+    }
+    avl_tree.print_tree_diagram();
+    println!("Get Inorder List: {:?}", avl_tree.get_inorder_list());
 
-    println!("Does Node(11) exist? {}", avl_tree.exist_or_not(11));
-    println!("Does Node(111) exist? {}", avl_tree.exist_or_not(111));
-
-    avl_tree.tree_diagram_print();
-
+    let mut avl_tree2 = None;
+    avl_tree2.insert_node(2);
+    avl_tree2.delete_node(2);
+    avl_tree2.print_tree_diagram();
     // =========== RB Tree Sample Test ==========
-
 }

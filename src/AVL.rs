@@ -70,6 +70,8 @@ trait __AvlTree<T: PartialOrd> {
     fn do_insert(&mut self, val: T) -> InnerResult;
     fn do_delete(&mut self, val: &mut DeleteValue<T>, val2: &T) -> InnerResult;
     fn recursive_print(&self, prefix_space: &String, is_right: bool, child_prefix: String);
+    fn contains_node(&self, val: T) -> bool;
+    fn inorder_to_list(&self, vec: &mut Vec<T>);
 }
 
 // 公有方法接口 (给用户调用) - public function trait
@@ -96,10 +98,11 @@ pub trait AvlTree<T: PartialOrd> {
     // 树的前序遍历
     fn post_order_traverse(&mut self);
     // 树的后序遍历
-    fn tree_diagram_print(&mut self);
+    fn print_tree_diagram(&mut self);
     // 打印树
-    fn exist_or_not(&mut self, val: T) -> bool;
+    fn exist_or_not(&self, val: T) -> bool;
     // 某个元素是否存在
+    fn get_inorder_list(&self) -> Vec<T>;
 }
 
 // 实现私有方法
@@ -400,6 +403,34 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         self.as_ref().unwrap().left.recursive_print(&prefix_space, true, "🅛".to_string());  // 🅻
         self.as_ref().unwrap().right.recursive_print(&prefix_space, false, "🅡 ".to_string());  // 🆁
     }
+
+    fn contains_node(&self, val: T) -> bool {
+        if val.eq(&self.as_ref().unwrap().val) {
+            true
+        } else if val.lt(&self.as_ref().unwrap().val) {
+            match &self.as_ref().unwrap().left {
+                None => false,
+                Some(node) => {
+                    Self::contains_node(&Some(node.clone()), val)
+                }
+            }
+        } else {
+            match &self.as_ref().unwrap().right {
+                None => false,
+                Some(node) => {
+                    Self::contains_node(&Some(node.clone()), val)
+                }
+            }
+        }
+    }
+
+    fn inorder_to_list(&self, vec: &mut Vec<T>) {
+        if let Some(node) = self {
+            self.as_ref().unwrap().left.inorder_to_list(vec);
+            vec.push(node.val);
+            self.as_ref().unwrap().right.inorder_to_list(vec);
+        }
+    }
 }
 
 impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
@@ -524,23 +555,24 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
             }
         }
     }
-    fn tree_diagram_print(&mut self) {
+    fn print_tree_diagram(&mut self) {
         println!("\n================== TREE PRINT <Node:Height> ==================");
         self.recursive_print(&"".to_string(), true, "Root".to_string());
-        println!("\n======================== FINISH PRINT ========================");
+        println!("======================== FINISH PRINT ========================");
     }
 
-    fn exist_or_not(&mut self, val: T) -> bool {
-        return match self {
+    fn exist_or_not(&self, val: T) -> bool {
+        match self {
             None => false,
             Some(node) => {
-                node.left.exist_or_not(val);
-                if node.val == val {
-                    return true;
-                }
-                node.right.exist_or_not(val);
-                false
+                Self::contains_node(&Some(node.clone()), val)
             }
-        };
+        }
+    }
+
+    fn get_inorder_list(&self) -> Vec<T>{
+        let mut inorder_list = Vec::new();
+        self.inorder_to_list(&mut inorder_list);
+        inorder_list
     }
 }
