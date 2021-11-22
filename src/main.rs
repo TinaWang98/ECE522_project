@@ -6,9 +6,6 @@ mod AVL;
 
 fn main() {
     run_command_line_app();
-    // =========== AVL Tree Sample Test ==========
-    // run_avl_tree_example();
-    // =========== RB Tree Sample Test ==========
 }
 
 // handle_input(): 允许用户在console进行一次输入，并将输入转换成一个i32类型的数字返回
@@ -19,7 +16,8 @@ fn handle_input() -> i32 {
     res
 }
 
-
+// input_to_vec(): 可以将一串数字的输入(空格间隔)转成一个vector
+// 1 2 3 4 5->[1,2,3,4,5]
 fn input_to_vec() -> Vec<i32> {
     let mut numbers = String::new();
     std::io::stdin()
