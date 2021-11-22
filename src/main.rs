@@ -17,7 +17,7 @@ fn handle_input() -> i32 {
 }
 
 // input_to_vec(): 可以将一串数字的输入(空格间隔)转成一个vector
-// 1 2 3 4 5->[1,2,3,4,5]
+// 输入:1 2 3 4 5 -> 返回:vec![1,2,3,4,5]
 fn input_to_vec() -> Vec<i32> {
     let mut numbers = String::new();
     std::io::stdin()
@@ -132,7 +132,15 @@ fn run_command_line_app() {
                     println!("Thanks you! Hope to see you again!");
                 };
             }
-            "rb" => todo!(),  // add command line of Red-Black Tree HERE!
+            "rb" => {
+                if length != 2 {
+                    eprintln!("Wrong number of arguments, please follow [cargo run rb]");
+                    std::process::exit(1);
+                } else {
+                    todo!("在这里填写不同功能的实现");
+                    // add command line of Red-Black Tree HERE!
+                }
+            },
             "prebuild" => {
                 println!("Please choose what kind of example you want to run?\n\
                 1 - AVL tree\n\
@@ -141,6 +149,7 @@ fn run_command_line_app() {
                 if input == 1 {
                     run_avl_tree_example()
                 } else if input == 2 {
+                    todo!();
                     // run_rb_tree_example()
                 } else {
                     println!("Wrong input, please try again...");

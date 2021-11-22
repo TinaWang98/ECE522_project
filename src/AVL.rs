@@ -95,17 +95,15 @@ pub trait AvlTree<T: PartialOrd> {
     fn number_of_leaves(&self) -> i32;
     // 叶子节点的数量
     fn in_order_traverse(&mut self) -> Vec<T>;
-    // 树的中序遍历
+    // 树的中序遍历，返回vec
     fn pre_order_traverse(&mut self) -> Vec<T>;
-    // 树的前序遍历
+    // 树的前序遍历，返回vec
     fn post_order_traverse(&mut self) -> Vec<T>;
-    // 树的后序遍历
+    // 树的后序遍历，返回vec
     fn print_tree_diagram(&mut self);
     // 打印树
     fn exist_or_not(&self, val: T) -> bool;
     // 某个元素是否存在
-    // fn get_inorder_list(&self) -> Vec<T>;
-    // 将中序遍历以vec形式返回
     fn generate_empty_tree() -> Self;
     // 生成一个空树
     fn update_node(&mut self, old: T, new: T);
