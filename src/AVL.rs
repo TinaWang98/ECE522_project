@@ -72,6 +72,8 @@ trait __AvlTree<T: PartialOrd> {
     fn recursive_print(&self, prefix_space: &String, is_right: bool, child_prefix: String);
     fn contains_node(&self, val: T) -> bool;
     fn inorder_to_list(&self, vec: &mut Vec<T>);
+    fn preorder_to_list(&self, vec: &mut Vec<T>);
+    fn postorder_to_list(&self, vec: &mut Vec<T>);
 }
 
 // 公有方法接口 (给用户调用) - public function trait
@@ -92,20 +94,22 @@ pub trait AvlTree<T: PartialOrd> {
     // 此树的高度
     fn number_of_leaves(&self) -> i32;
     // 叶子节点的数量
-    fn in_order_traverse(&mut self);
+    fn in_order_traverse(&mut self) -> Vec<T>;
     // 树的中序遍历
-    fn pre_order_traverse(&mut self);
+    fn pre_order_traverse(&mut self) -> Vec<T>;
     // 树的前序遍历
-    fn post_order_traverse(&mut self);
+    fn post_order_traverse(&mut self) -> Vec<T>;
     // 树的后序遍历
     fn print_tree_diagram(&mut self);
     // 打印树
     fn exist_or_not(&self, val: T) -> bool;
     // 某个元素是否存在
-    fn get_inorder_list(&self) -> Vec<T>;
+    // fn get_inorder_list(&self) -> Vec<T>;
     // 将中序遍历以vec形式返回
     fn generate_empty_tree() -> Self;
     // 生成一个空树
+    fn update_node(&mut self, old: T, new: T);
+    // 更新节点
 }
 
 // 实现私有方法
@@ -283,7 +287,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
             // 如果这个地方没有值，那就"什么都不做"
             None => {
                 *val = Del(None); // 用delete(None)代表do nothing
-                println!("No such node({:?}) to delete", val2);
+                println!("DELETE FAILED: No such node({:?}) to delete", val2);
                 Balanced
             }
             // 如果有
@@ -403,8 +407,8 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         let mut prefix_space = prefix_space.to_owned();
         prefix_space.push_str(&prefix_child);
 
-        self.as_ref().unwrap().left.recursive_print(&prefix_space, true, "🅛".to_string());  // 🅻
-        self.as_ref().unwrap().right.recursive_print(&prefix_space, false, "🅡 ".to_string());  // 🆁
+        self.as_ref().unwrap().left.recursive_print(&prefix_space, true, "L ".to_string());
+        self.as_ref().unwrap().right.recursive_print(&prefix_space, false, "R ".to_string());
     }
 
     fn contains_node(&self, val: T) -> bool {
@@ -432,6 +436,22 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
             self.as_ref().unwrap().left.inorder_to_list(vec);
             vec.push(node.val);
             self.as_ref().unwrap().right.inorder_to_list(vec);
+        }
+    }
+
+    fn preorder_to_list(&self, vec: &mut Vec<T>) {
+        if let Some(node) = self {
+            vec.push(node.val);
+            self.as_ref().unwrap().left.inorder_to_list(vec);
+            self.as_ref().unwrap().right.inorder_to_list(vec);
+        }
+    }
+
+    fn postorder_to_list(&self, vec: &mut Vec<T>) {
+        if let Some(node) = self {
+            self.as_ref().unwrap().left.inorder_to_list(vec);
+            self.as_ref().unwrap().right.inorder_to_list(vec);
+            vec.push(node.val);
         }
     }
 }
@@ -524,39 +544,48 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         count
     }
 
-    fn in_order_traverse(&mut self) {
-        match self {
-            None => (),
-            Some(node) => {
-                node.left.in_order_traverse();
-                print!(" {:?} ", node.val);
-                node.right.in_order_traverse();
-            }
-        }
+    fn in_order_traverse(&mut self) -> Vec<T> {
+        // match self {
+        //     None => (),
+        //     Some(node) => {
+        //         node.left.in_order_traverse();
+        //         print!(" {:?} ", node.val);
+        //         node.right.in_order_traverse();
+        //     }
+        // }
+        let mut inorder_list = Vec::new();
+        self.inorder_to_list(&mut inorder_list);
+        inorder_list
     }
 
-    fn pre_order_traverse(&mut self) {
-        match self {
-            None => (),
-            Some(node) => {
-                // 先当前再左再右
-                print!(" {:?} ", node.val);
-                node.left.pre_order_traverse();
-                node.right.pre_order_traverse();
-            }
-        }
+    fn pre_order_traverse(&mut self) -> Vec<T> {
+        // match self {
+        //     None => (),
+        //     Some(node) => {
+        //         // 先当前再左再右
+        //         print!(" {:?} ", node.val);
+        //         node.left.pre_order_traverse();
+        //         node.right.pre_order_traverse();
+        //     }
+        // }
+        let mut preorder_list = Vec::new();
+        self.preorder_to_list(&mut preorder_list);
+        preorder_list
     }
 
-    fn post_order_traverse(&mut self) {
-        match self {
-            None => (),
-            Some(node) => {
-                // 先左再右再当前
-                node.left.post_order_traverse();
-                node.right.post_order_traverse();
-                print!(" {:?} ", node.val);
-            }
-        }
+    fn post_order_traverse(&mut self) -> Vec<T> {
+        // match self {
+        //     None => (),
+        //     Some(node) => {
+        //         // 先左再右再当前
+        //         node.left.post_order_traverse();
+        //         node.right.post_order_traverse();
+        //         print!(" {:?} ", node.val);
+        //     }
+        // }
+        let mut postorder_list = Vec::new();
+        self.postorder_to_list(&mut postorder_list);
+        postorder_list
     }
 
     fn print_tree_diagram(&mut self) {
@@ -574,13 +603,23 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         }
     }
 
-    fn get_inorder_list(&self) -> Vec<T> {
-        let mut inorder_list = Vec::new();
-        self.inorder_to_list(&mut inorder_list);
-        inorder_list
-    }
+    // fn get_inorder_list(&self) -> Vec<T> {
+    //     let mut inorder_list = Vec::new();
+    //     self.inorder_to_list(&mut inorder_list);
+    //     inorder_list
+    // }
 
     fn generate_empty_tree() -> Self {
         Self::None
+    }
+
+    fn update_node(&mut self, old: T, new: T) {
+        if self.exist_or_not(old) {
+            self.delete_node(old);
+            self.insert_node(new);
+            println!("Node({:?}) has been replaced by Node({:?})", new, old);
+        } else {
+            println!("UPDATE FAILED: Node({:?}) doesn't exist.", old);
+        }
     }
 }
