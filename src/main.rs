@@ -19,6 +19,20 @@ fn handle_input() -> i32 {
     res
 }
 
+
+fn input_to_vec() -> Vec<i32> {
+    let mut numbers = String::new();
+    std::io::stdin()
+        .read_line(&mut numbers)
+        .ok()
+        .expect("read error");
+    let numbers: Vec<i32> = numbers
+        .split_whitespace()
+        .map(|s| s.parse().expect("parse error"))
+        .collect();
+    numbers
+}
+
 // command line instruction list
 fn instruction_list() {
     println!(
@@ -137,17 +151,4 @@ fn run_command_line_app() {
             _ => println!("Wrong command instruction, please try again!"),
         };
     }
-}
-
-fn input_to_vec() -> Vec<i32> {
-    let mut numbers = String::new();
-    std::io::stdin()
-        .read_line(&mut numbers)
-        .ok()
-        .expect("read error");
-    let numbers: Vec<i32> = numbers
-        .split_whitespace()
-        .map(|s| s.parse().expect("parse error"))
-        .collect();
-    numbers
 }
