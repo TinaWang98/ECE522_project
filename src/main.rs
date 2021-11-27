@@ -55,7 +55,8 @@ fn avl_help_list() {
               8 - Empty Or Not: check it is empty or not\n\
               9 - Print: print this tree\n\
               10 - Update: Update the value of a specific node (replace A with B)\n\
-              11 - Exist Or Not: Check whether a value exists");
+              11 - Exist Or Not: Check whether a value exists\n\
+              12 - Validate: Check whether it is a balanced tree");
     println!("=======================================");
 }
 
@@ -124,6 +125,9 @@ fn run_command_line_app() {
                             11 => {
                                 let input = handle_input();
                                 println!("Does {} exist? {}", input, avl_tree.exist_or_not(input));
+                            }
+                            12 => {
+                                println!("Balanced Tree? {}", AvlTree::validate_tree(&avl_tree));
                             }
                             _ => println!("Wrong number, please try again..."),
                         }

@@ -615,7 +615,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         if self.exist_or_not(old) {
             self.delete_node(old);
             self.insert_node(new);
-            println!("Node({:?}) has been replaced by Node({:?})", new, old);
+            println!("Node({:?}) has been replaced by Node({:?})", old, new);
         } else {
             println!("UPDATE FAILED: Node({:?}) doesn't exist.", old);
         }
