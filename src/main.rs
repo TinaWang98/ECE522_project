@@ -1,5 +1,6 @@
 use ECE522_project::run_avl_tree_example;
 use crate::AVL::{AvlTree, AvlTreeNode};
+use RBTree::*;
 
 mod RBTree;
 mod AVL;
@@ -25,6 +26,19 @@ fn input_to_vec() -> Vec<i32> {
         .ok()
         .expect("read error");
     let numbers: Vec<i32> = numbers
+        .split_whitespace()
+        .map(|s| s.parse().expect("parse error"))
+        .collect();
+    numbers
+}
+
+fn input_to_u32_vec() -> Vec<u32> {
+    let mut numbers = String::new();
+    std::io::stdin()
+        .read_line(&mut numbers)
+        .ok()
+        .expect("read error");
+    let numbers: Vec<u32> = numbers
         .split_whitespace()
         .map(|s| s.parse().expect("parse error"))
         .collect();
@@ -61,7 +75,18 @@ fn avl_help_list() {
 }
 
 fn rb_help_list() {
-    todo!()
+    println!("=========== RBTree HELP MANUAL ===========");
+    println!("0 - Exit\n\
+              1 - Insert: insert a node/some nodes to the avl tree\n\
+              2 - Delete: delete a node/some nodes from the avl tree\n\
+              3 - Leaves: count the number of leaves in this avl tree\n\
+              4 - Height: check the height of this avl tree\n\
+              5 - In Order Traversal: print the in-order traversal of the avl tree\n\
+              6 - Pre Order Traversal: print the pre-order traversal of the avl tree\n\
+              7 - Post Order Traversal: print the post-order traversal of the avl tree\n\
+              8 - Empty Or Not: check it is empty or not\n\
+              9 - Print: print this tree");
+    println!("=======================================");
 }
 
 fn run_command_line_app() {
@@ -102,6 +127,7 @@ fn run_command_line_app() {
                                 for i in input.clone() {
                                     avl_tree.delete_node(i);
                                 }
+                                println!("Delete {:?} successfully.", input);
                             }
                             3 => println!("Number of leaves: {}", avl_tree.number_of_leaves()),
                             4 => println!("Height of tree: {}", avl_tree.height_of_tree()),
@@ -136,7 +162,59 @@ fn run_command_line_app() {
                     println!("Thanks you! Hope to see you again!");
                 };
             }
-            "rb" => todo!(),  // add command line of Red-Black Tree HERE!
+            "rb" => {
+                if length != 2 {
+                    eprintln!("Wrong number of arguments, please follow [cargo run rb]");
+                    std::process::exit(1);
+                }
+                else{
+                    //let mut rb_tree: RBTree::Tree = Rc::new(RefCell::new(TreeNode::new(val)));;
+                    let mut rb_tree: RBTree::RBTree = RBTree::RBTree::new();
+                    loop {
+                        rb_help_list();
+                        println!("Please input your choice: ");
+                        let user_choice = handle_input();
+                        match user_choice {
+                            0 => { break; }
+                            1 => {
+                                println!("Please input what kind of value you want to add. Separate by one whitespace.\n\
+                                e.g.1 2 3 4 5");
+                                let input: Vec<u32> = input_to_u32_vec();
+                                for i in input.clone() {
+                                    rb_tree.insert_node(i);
+                                }
+                                println!("Insert {:?} successfully.", input);
+                            }
+                            2 => {
+                                println!("Current tree contains {:?}", rb_tree.print_in_order_traversal());
+                                println!("Please input what kind of value you want to delete. Separate by one whitespace.\n\
+                                e.g.1 2 3 4 5");
+                                let input: Vec<u32> = input_to_u32_vec();
+                                for i in input.clone() {
+                                    rb_tree.delete(i);
+                                }
+                                println!("Delete {:?} successfully.", input);
+                            }
+                            3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
+                            4 => println!("Height of tree: {}", rb_tree.get_height()),
+                            5 => println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal()),
+                            6 => {} //preorder?
+                            7 => {} //postorder?
+                            8 => {
+                                if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
+                            }
+
+                            9 => rb_tree.print_tree(),
+                            _ => println!("Wrong number, please try again..."),
+                            //2 => {
+
+                        }
+
+                    }
+                }
+            }
+
+              // add command line of Red-Black Tree HERE!
             "prebuild" => {
                 println!("Please choose what kind of example you want to run?\n\
                 1 - AVL tree\n\

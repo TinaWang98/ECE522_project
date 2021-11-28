@@ -37,12 +37,15 @@ impl<T: Ord + Clone> TreeNode<T> {
     }
     fn inserted(pre_node: &mut Tree, val: u32) -> RedBlackTree {
         if (*pre_node.borrow()).key == val {
+            //println!("11");
             //return if val is already in the tree
             return Option::None;
         } else if (*pre_node.borrow()).key > val {
+            //println!("22");
             //handle val left case
             let mut left_node = &mut (*pre_node.borrow_mut()).left;
             match &mut left_node {
+
                 //recursively
                 Some(node) => return TreeNode::<u32>::inserted(node, val),
 
@@ -58,6 +61,7 @@ impl<T: Ord + Clone> TreeNode<T> {
                 }
             }
         } else {
+            //println!("33");
             //handle val right case
             let mut right_node = &mut (*pre_node.borrow_mut()).right;
             match &mut right_node {
@@ -76,13 +80,17 @@ impl<T: Ord + Clone> TreeNode<T> {
     }
 
     fn insert_rebalance(root_node: &mut RedBlackTree, insert_node: &Tree) {
+
         let mut current = Rc::clone(insert_node);
         while let Some(mut parent_node) = RBTree::get_parent(&current) {
+
             //check exist for parent_node
             if (*parent_node.borrow()).color == NodeColor::Red {
                 //let grandparent = parent_node.borrow().parent.as_ref().unwrap().upgrade().unwrap();
                 let grandparent = TreeNode::<u32>::get_grandparent(&current);
+
                 if let Some(grandparent) = grandparent {
+
                     if RBTree::is_left_side(&parent_node) {
                         //when uncle node is red
 
@@ -94,6 +102,7 @@ impl<T: Ord + Clone> TreeNode<T> {
                                 RBTree::reset_color(&mut &parent_node, NodeColor::Black);
                                 RBTree::reset_color(&mut &grandparent, NodeColor::Red);
                                 current = Rc::clone(&grandparent);
+                                println!("99");
                                 continue;
                             }
                         }
@@ -113,6 +122,7 @@ impl<T: Ord + Clone> TreeNode<T> {
 
                         //when parent is the right child
                     } else {
+
 
                         //when uncle node is red
                         let mut uncle = (*grandparent.borrow()).left.clone();
@@ -139,6 +149,10 @@ impl<T: Ord + Clone> TreeNode<T> {
                         RBTree::reset_color(&mut &grandparent, NodeColor::Red);
                         RBTree::left_rotation(root_node, &grandparent);
                     }
+                }
+                else{
+                    //break;
+                    RBTree::reset_color(&mut &parent_node, NodeColor::Black);
                 }
             } else {
                 //if parent_node node is black
@@ -172,6 +186,7 @@ impl RBTree {
 
     pub fn insert_node(&mut self, val: u32) -> bool {
         //return a bool for testing
+        //println!("aa");
         match &mut self.root {
             Some(node) => {
                 //insert
@@ -269,6 +284,7 @@ impl RBTree {
     pub fn is_empty(&self) -> bool {
         self.root.is_none()
     }
+
     pub fn get_number_leaves(&self) -> u32 {
         let mut count: u32 = 0;
         if self.is_empty() {
@@ -278,6 +294,7 @@ impl RBTree {
         }
         count
     }
+
     fn private_get_height(node_op: &RedBlackTree) -> u32 {
         if node_op.is_none() {
             return 0u32;
@@ -577,6 +594,7 @@ impl RBTree {
             println!("{:?}", vec);
         }
     }
+
     fn recursion_print(node: &RedBlackTree, pre_space: &String, is_left: bool, child_pre: String) {
         if node.is_none() {
             let none_pre = if is_left { "├ " } else { "└ " };
@@ -595,6 +613,7 @@ impl RBTree {
         RBTree::recursion_print(&node.left, &pre_space, true, "🅛".to_string());
         RBTree::recursion_print(&node.right, &pre_space, false, "🅡".to_string());
     }
+
     pub fn print_tree(&self) {
         // println!("The RbTree will be printed in format <L/R> <Key>:<Color>");
         println!("\n================== TREE PRINT <Node:Color> ==================");
