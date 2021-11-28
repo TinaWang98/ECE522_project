@@ -410,20 +410,28 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn contains_node(&self, val: T) -> bool {
-        if val.eq(&self.as_ref().unwrap().val) {
-            true
-        } else if val.lt(&self.as_ref().unwrap().val) {
-            match &self.as_ref().unwrap().left {
-                None => false,
-                Some(_) => {
-                    self.as_ref().unwrap().left.contains_node(val)
-                }
+        match self {
+            None => {
+                println!("Tree is empty, please add some node!");
+                false
             }
-        } else {
-            match &self.as_ref().unwrap().right {
-                None => false,
-                Some(_) => {
-                    self.as_ref().unwrap().right.contains_node(val)
+            Some(_) => {
+                if val.eq(&self.as_ref().unwrap().val) {
+                    true
+                } else if val.lt(&self.as_ref().unwrap().val) {
+                    match &self.as_ref().unwrap().left {
+                        None => false,
+                        Some(_) => {
+                            self.as_ref().unwrap().left.contains_node(val)
+                        }
+                    }
+                } else {
+                    match &self.as_ref().unwrap().right {
+                        None => false,
+                        Some(_) => {
+                            self.as_ref().unwrap().right.contains_node(val)
+                        }
+                    }
                 }
             }
         }
@@ -514,11 +522,9 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn is_tree_empty(&self) -> bool {
-        // 但凡是有个节点，它的高度都是1，所以只要高度是0，那就是空
-        if self.as_ref().unwrap().height == 0 {
-            true
-        } else {
-            false
+        match self {
+            None => true,
+            Some(_) => false
         }
     }
 
@@ -543,44 +549,18 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn in_order_traverse(&mut self) -> Vec<T> {
-        // match self {
-        //     None => (),
-        //     Some(node) => {
-        //         node.left.in_order_traverse();
-        //         print!(" {:?} ", node.val);
-        //         node.right.in_order_traverse();
-        //     }
-        // }
         let mut inorder_list = Vec::new();
         self.inorder_to_list(&mut inorder_list);
         inorder_list
     }
 
     fn pre_order_traverse(&mut self) -> Vec<T> {
-        // match self {
-        //     None => (),
-        //     Some(node) => {
-        //         // 先当前再左再右
-        //         print!(" {:?} ", node.val);
-        //         node.left.pre_order_traverse();
-        //         node.right.pre_order_traverse();
-        //     }
-        // }
         let mut preorder_list = Vec::new();
         self.preorder_to_list(&mut preorder_list);
         preorder_list
     }
 
     fn post_order_traverse(&mut self) -> Vec<T> {
-        // match self {
-        //     None => (),
-        //     Some(node) => {
-        //         // 先左再右再当前
-        //         node.left.post_order_traverse();
-        //         node.right.post_order_traverse();
-        //         print!(" {:?} ", node.val);
-        //     }
-        // }
         let mut postorder_list = Vec::new();
         self.postorder_to_list(&mut postorder_list);
         postorder_list
@@ -600,12 +580,6 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
             }
         }
     }
-
-    // fn get_inorder_list(&self) -> Vec<T> {
-    //     let mut inorder_list = Vec::new();
-    //     self.inorder_to_list(&mut inorder_list);
-    //     inorder_list
-    // }
 
     fn generate_empty_tree() -> Self {
         Self::None

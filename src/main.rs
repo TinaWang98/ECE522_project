@@ -13,7 +13,7 @@ fn main() {
 fn handle_input() -> i32 {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("Cannot read!");
-    let res: i32 = input.trim().parse().expect("Should be a number!");
+    let res = input.trim().parse::<i32>().unwrap_or(100);
     res
 }
 
@@ -149,25 +149,31 @@ fn run_command_line_app() {
                                 }
                             }
                             11 => {
-                                let input = handle_input();
-                                println!("Does {} exist? {}", input, avl_tree.exist_or_not(input));
+                                println!("Please input the node/nodes you want to check. Separate by one whitespace.");
+                                let input = input_to_vec();
+                                if input.len() == 0 {
+                                    println!("Numbers of node can not be zero!")
+                                } else {
+                                    for i in input {
+                                        println!("Does {} exist? {}", i, avl_tree.exist_or_not(i));
+                                    }
+                                }
                             }
                             12 => {
-                                println!("Balanced Tree? {}", AvlTree::validate_tree(&avl_tree));
+                                println!("Balanced Tree? {}", avl_tree.validate_tree());
                             }
-                            _ => println!("Wrong number, please try again..."),
+                            _ => println!("Wrong input! Input should be a number from 0-12, please try again..."),
                         }
                         std::thread::sleep(std::time::Duration::from_millis(800));
                     }
-                    println!("Thanks you! Hope to see you again!");
+                    println!("Thank you! Hope to see you again!");
                 };
             }
             "rb" => {
                 if length != 2 {
                     eprintln!("Wrong number of arguments, please follow [cargo run rb]");
                     std::process::exit(1);
-                }
-                else{
+                } else {
                     //let mut rb_tree: RBTree::Tree = Rc::new(RefCell::new(TreeNode::new(val)));;
                     let mut rb_tree: RBTree::RBTree = RBTree::RBTree::new();
                     loop {
@@ -198,23 +204,19 @@ fn run_command_line_app() {
                             3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
                             4 => println!("Height of tree: {}", rb_tree.get_height()),
                             5 => println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal()),
-                            6 => {} //preorder?
-                            7 => {} //postorder?
+                            6 => {todo!()} //preorder?
+                            7 => {todo!()} //postorder?
                             8 => {
                                 if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
                             }
-
                             9 => rb_tree.print_tree(),
-                            _ => println!("Wrong number, please try again..."),
-                            //2 => {
-
+                            _ => println!("Wrong input! Input should be a number from 0-9, please try again..."),
                         }
-
                     }
                 }
             }
 
-              // add command line of Red-Black Tree HERE!
+            // add command line of Red-Black Tree HERE!
             "prebuild" => {
                 println!("Please choose what kind of example you want to run?\n\
                 1 - AVL tree\n\
@@ -227,7 +229,7 @@ fn run_command_line_app() {
                 } else {
                     println!("Wrong input, please try again...");
                 }
-            }  // add pre-defined example HERE!
+            }
             _ => println!("Wrong command instruction, please try again!"),
         };
     }

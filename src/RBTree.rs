@@ -610,8 +610,8 @@ impl RBTree {
         let mut pre_space = pre_space.to_owned();
         pre_space.push_str(&pre_child);
 
-        RBTree::recursion_print(&node.left, &pre_space, true, "🅛".to_string());
-        RBTree::recursion_print(&node.right, &pre_space, false, "🅡".to_string());
+        RBTree::recursion_print(&node.left, &pre_space, true, "L".to_string());
+        RBTree::recursion_print(&node.right, &pre_space, false, "R".to_string());
     }
 
     pub fn print_tree(&self) {
