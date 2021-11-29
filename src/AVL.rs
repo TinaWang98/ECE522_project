@@ -320,7 +320,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                             } else {
                                 // else, find the minimum value in the right side
                                 *val = Min;
-                                root.right.do_delete(val, val2);  // 删除这个最小值并返回
+                                root.right.do_delete(val, val2);  // delete and return the value
                                 match val {
                                     // Same above
                                     Del(Some(x)) => {
