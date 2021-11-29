@@ -7,11 +7,9 @@ mod RBTree;
 mod AVL;
 
 fn main() {
-
     run_command_line_app();
 }
 
-// handle_input(): 允许用户在console进行一次输入，并将输入转换成一个i32类型的数字返回
 fn handle_input() -> i32 {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("Cannot read!");
@@ -19,8 +17,6 @@ fn handle_input() -> i32 {
     res
 }
 
-// input_to_vec(): 可以将一串数字的输入(空格间隔)转成一个vector
-// 1 2 3 4 5->[1,2,3,4,5]
 fn input_to_vec() -> Vec<i32> {
     let mut numbers = String::new();
     std::io::stdin()
@@ -54,7 +50,6 @@ fn instruction_list() {
          2. cargo run rb: Go to Red-Black tree interface\n\
          3. cargo run prebuild: Run pre-build AVL and RB tree examples
          "
-        // 为了保持main.rs的精简，pre-build的程序代码已经转移到了lib.rs中
     )
 }
 
@@ -176,7 +171,6 @@ fn run_command_line_app() {
                     eprintln!("Wrong number of arguments, please follow [cargo run rb]");
                     std::process::exit(1);
                 } else {
-                    //let mut rb_tree: RBTree::Tree = Rc::new(RefCell::new(TreeNode::new(val)));;
                     let mut rb_tree: RBTree::RBTree = RBTree::RBTree::new();
                     loop {
                         rb_help_list();
