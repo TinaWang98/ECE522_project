@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId,Criterion};
 use ECE522_project::AVL::{AvlTree,AvlTreeNode};
 use ECE522_project::RBTree::RBTree;
 use ECE522_project::BST::BSTree;
@@ -37,19 +37,47 @@ pub fn test_BST(tree_size: i32) {
     }
 }
 
-fn criterion_benchmark(c: &mut Criterion) {
-    // c.bench_function("test_BST", |b| {
-    //     b.iter(|| test_BST(black_box(100000)))
-    // });
-
-    c.bench_function("test_AVL", |b| {
-        b.iter(|| test_avl_tree(black_box(100000)))
-    });
-
-    // c.bench_function("test_RBT", |b| {
-    //     b.iter(|| test_rb_tree(black_box(100)))
-    // });
+fn criterion_benchmark_rbtree(c: &mut Criterion){
+    let mut group = c.benchmark_group("rbtree");
+    for size in [10000,40000,70000,100000,130000].iter(){
+        group.bench_with_input(BenchmarkId::from_parameter(size),size,|b,&size|{
+            b.iter(||{
+                test_rb_tree(size);
+            }
+            )
+        }
+        );
+    }
+    group.finish();
 }
 
-criterion_group!(benches, criterion_benchmark);
+fn criterion_benchmark_avltree(c: &mut Criterion){
+    let mut group = c.benchmark_group("avltree");
+    for size in [10000,40000,70000,100000,130000].iter(){
+        group.bench_with_input(BenchmarkId::from_parameter(size),size,|b,&size|{
+            b.iter(||{
+                test_avl_tree(size);
+            }
+            )
+        }
+        );
+    }
+    group.finish();
+}
+
+fn criterion_benchmark_bstree(c: &mut Criterion){
+    let mut group = c.benchmark_group("bstree");
+    for size in [10000,40000,70000,100000,130000].iter(){
+        group.bench_with_input(BenchmarkId::from_parameter(size),size,|b,&size|{
+            b.iter(||{
+                test_BST(size);
+            }
+            )
+        }
+        );
+    }
+    group.finish();
+}
+
+criterion_group!(benches, criterion_benchmark_avltree,criterion_benchmark_rbtree,criterion_benchmark_bstree);
 criterion_main!(benches);
