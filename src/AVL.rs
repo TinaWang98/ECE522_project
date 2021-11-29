@@ -16,16 +16,22 @@ pub struct TreeNode<T: PartialOrd> {
 }
 
 enum InnerResult {
-    Left, // finished on left-side sub-tree
-    Right,  // finished on left-side sub-tree
-    Unknown,  // Unknown about balance
+    Left,
+    // finished on left-side sub-tree
+    Right,
+    // finished on left-side sub-tree
+    Unknown,
+    // Unknown about balance
     Balanced,  // Tree Balanced
 }
 
 enum DeleteValue<T: PartialOrd> {
-    Min, // Minimum node
-    Max, // Maximum node
-    Val(T), // "Input" value
+    Min,
+    // Minimum node
+    Max,
+    // Maximum node
+    Val(T),
+    // "Input" value
     Del(AvlTreeNode<T>), // Deleted Node
 }
 
@@ -552,6 +558,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn in_order_traverse(&mut self) -> Vec<T> {
+
         let mut inorder_list = Vec::new();
         self.inorder_to_list(&mut inorder_list);
         inorder_list
@@ -570,9 +577,14 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn print_tree_diagram(&mut self) {
-        println!("\n================== TREE PRINT <Node:Height> ==================");
-        self.recursive_print(&"".to_string(), true, "Root".to_string());
-        println!("======================== FINISH PRINT ========================");
+        match self {
+            None => println!("Tree is Empty! Add some nodes before print."),
+            Some(_) =>{
+                println!("\n================== TREE PRINT <Node:Height> ==================");
+                self.recursive_print(&"".to_string(), true, "Root".to_string());
+                println!("======================== FINISH PRINT ========================");
+            }
+        }
     }
 
     fn exist_or_not(&self, val: T) -> bool {
@@ -589,12 +601,17 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn update_node(&mut self, old: T, new: T) {
-        if self.exist_or_not(old) {
-            self.delete_node(old);
-            self.insert_node(new);
-            println!("Node({:?}) has been replaced by Node({:?})", old, new);
-        } else {
-            println!("UPDATE FAILED: Node({:?}) doesn't exist.", old);
+        match self {
+            None => println!("Tree is Empty! Add some nodes before update."),
+            Some(_) => {
+                if self.exist_or_not(old) {
+                    self.delete_node(old);
+                    self.insert_node(new);
+                    println!("Node({:?}) has been replaced by Node({:?})", old, new);
+                } else {
+                    println!("UPDATE FAILED: Node({:?}) doesn't exist.", old);
+                }
+            }
         }
     }
 }
