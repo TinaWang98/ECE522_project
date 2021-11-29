@@ -16,23 +16,17 @@ pub struct TreeNode<T: PartialOrd> {
 }
 
 enum InnerResult {
-    Left,
-    //在左子树完成插入
-    Right,
-    //在右子树完成插入
-    Unknown,
-    //树的平衡性未知
-    Balanced, //树已确定平衡
+    Left, // finished on left-side sub-tree
+    Right,  // finished on left-side sub-tree
+    Unknown,  // Unknown about balance
+    Balanced,  // Tree Balanced
 }
 
 enum DeleteValue<T: PartialOrd> {
-    Min,
-    //匹配最小节点
-    Max,
-    //匹配最大节点
-    Val(T),
-    //匹配给定值
-    Del(AvlTreeNode<T>), //返回被删除节点
+    Min, // Minimum node
+    Max, // Maximum node
+    Val(T), // "Input" value
+    Del(AvlTreeNode<T>), // Deleted Node
 }
 
 impl<T: PartialOrd> PartialEq<Box<TreeNode<T>>> for DeleteValue<T> {
@@ -57,12 +51,10 @@ impl<T: PartialOrd> PartialOrd<Box<TreeNode<T>>> for DeleteValue<T> {
     }
 }
 
-// 私有方法接口 - private function trait
+// private function trait
 trait __AvlTree<T: PartialOrd> {
     fn right_rotate(&mut self);
-    // 右旋转 - ll
     fn left_rotate(&mut self);
-    // 左旋转 - rr
     fn rotate_lr(&mut self);
     fn rotate_rl(&mut self);
     fn update_height(&mut self);
@@ -76,41 +68,41 @@ trait __AvlTree<T: PartialOrd> {
     fn postorder_to_list(&self, vec: &mut Vec<T>);
 }
 
-// 公有方法接口 (给用户调用) - public function trait
+// public function trait - FOR USERS
 pub trait AvlTree<T: PartialOrd> {
     fn new(val: T) -> Self;
-    // 新建节点
+    // generate a new node
     fn height(&self) -> i32;
-    // 获取某个节点的高度
+    // get height of a node
     fn insert_node(&mut self, val: T);
-    // 插入节点
+    // insert node
     fn delete_node(&mut self, val: T) -> Self;
-    // 删除节点
+    // delete node
     fn validate_tree(&self) -> bool;
-    // 是AVL树否？
+    // Is it a "balanced" AVL tree?
     fn is_tree_empty(&self) -> bool;
-    // 此树空否？
+    // Tree empty?
     fn height_of_tree(&self) -> i32;
-    // 此树的高度
+    // Height of this tree
     fn number_of_leaves(&self) -> i32;
-    // 叶子节点的数量
+    // number of leaves in this tree
     fn in_order_traverse(&mut self) -> Vec<T>;
-    // 树的中序遍历，返回vec
+    // in_order_traverse, return result as a vector
     fn pre_order_traverse(&mut self) -> Vec<T>;
-    // 树的前序遍历，返回vec
+    // pre_order_traverse, return result as a vector
     fn post_order_traverse(&mut self) -> Vec<T>;
-    // 树的后序遍历，返回vec
+    // post_order_traverse, return result as a vector
     fn print_tree_diagram(&mut self);
-    // 打印树
+    // print the tree nicely
     fn exist_or_not(&self, val: T) -> bool;
-    // 某个元素是否存在
+    // check the existence of a specified node
     fn generate_empty_tree() -> Self;
-    // 生成一个空树
+    // generate a new empty tree
     fn update_node(&mut self, old: T, new: T);
-    // 更新节点
+    // update the node
 }
 
-// 实现私有方法
+// implementation for private
 impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     //         y                            x
     //        / \     Right Rotation       / \
@@ -118,23 +110,23 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     //      / \                          /\ / \
     //     z  T3                        1 2 3  4
     //   T1 T2
-    fn right_rotate(&mut self) {
+    fn right_rotate(&mut self) {  // Case LL
         match self {
             Some(root) => {  // y is root
-                // 1. 拿到root的左侧子树，即x分支(此时左侧子树已经剥离)
-                let left = &mut root.left.take();
+                // 1. Get the left subtree of root, i.e. the x branch (at this point the left subtree has been stripped)
+                let left = &mut root.left.take();  // Get the value inside Option<>, leave a None
                 match left {
-                    // 如果左侧子树(x-branch)有东西
+                    // If the left subtree (x-branch) has something
                     Some(node) => {
-                        // 2. T3连接至y的左侧(root的左侧和x的右侧互换)
+                        // 2. T3 is connected to the left side of y (the left side of root and the right side of x are swapped)
                         // root.left=x.right & x.right=root.left
                         swap(&mut root.left, &mut node.right);
-                        self.update_height();  // 更新高度
-                        // 此时self是y-(T3 & T4)
-                        // 3. 将y连接至x分支的右侧(此时root变为了x)
+                        self.update_height();  // update height
+                        // At this point self is y-(T3 & T4)
+                        // 3. Connect y to the right side of the x branch (where root becomes x)
                         swap(self, &mut node.right);
-                        // 4. 将重新整合好的x分支(left变量)赋给self
-                        // 此时self是整合好之后的x分支
+                        // 4. Assign the reintegrated x branch (left) to self
+                        // At this point self is the x branch after integration
                         swap(self, left);
                         self.update_height();
                     }
@@ -151,22 +143,22 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     //          / \                      / \ / \
     //         T3  z                    4  3 2  1
     //           T2 T1
-    fn left_rotate(&mut self) {
+    fn left_rotate(&mut self) {  // Case RR
         match self {
-            Some(root) => { // 此时root是y
-                // 1. 拿到y的右侧子树，即x分支(此时子树已经剥离)
+            Some(root) => { // At this point root is y
+                // 1. Get the right subtree of y, the x branch (at this point the subtree is stripped)
                 let right = &mut root.right.take();
                 match right {
-                    // 如果x分支不为空
+                    // If x branch is not None
                     Some(node) => {
-                        // 2. 将x的左侧和y的右侧交换(即 y-(T4 & T3))
+                        // 2. Swap the left side of x with the right side of y (i.e. y-(T4 & T3))
                         swap(&mut root.right, &mut node.left);
                         self.update_height();
-                        // 此时self是y-(T4 & T3)
-                        // 3.将x的左侧连接上self(即y分支)，此时root变为x
+                        // At this point self is y-(T4 & T3)
+                        // 3. Connect the left side of x to self (i.e., the y branch), where root becomes x
                         swap(self, &mut node.left);
-                        // 4.将重新整合好的x分支赋值给right变量
-                        // 此时self是x分支
+                        // 4. Assign the reintegrated x branch to the right variable
+                        // At this point self is the x branch
                         swap(self, right);
                         self.update_height();
                     }
@@ -200,7 +192,8 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     fn update_height(&mut self) {
         match self {
             None => {}
-            // 找到左侧子树和右侧子树中最高的高度，再加上本身的1，就是自己的高度
+            // Find the highest height in the left subtree and the right subtree,
+            // and add 1 to itself to be its own height
             Some(node) => node.height = max(node.left.height(), node.right.height()) + 1,
         }
     }
@@ -208,54 +201,57 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     fn balance_factor(&self) -> i32 {
         match self {
             None => 0,
-            // 平衡因子 = 左侧子树高度 - 右侧子树高度
+            // Balance factor = left subtree height - right subtree height
             Some(node) => node.left.height() - node.right.height(),
         }
     }
 
     fn do_insert(&mut self, val: T) -> InnerResult {
         match self {
-            //如果某个指定位置没有节点，就新建一个放在这里
+            // If there is no node at a given location, create a new one and put it here
             None => {
                 *self = Self::new(val);
                 Unknown
             }
-            //递归插入
+            // Recursive insertion
             Some(root) => {
-                //重复数据
+                // Duplicate data, do nothing
                 if val == root.val {
                     Balanced
                 } else if val < root.val {
-                    // 目标值 < 当前节点值，向左侧子树寻找位置
+                    // Target value < current node value, find position to the left subtree
                     match root.left.do_insert(val) {
                         Balanced => Balanced,
                         NotBalanced => {
-                            // 当"平衡因子"绝对值大于1的时候就是不平衡，此时是正数，代表左侧不平衡
+                            // When the absolute value of "balance factor" is greater than 1, it is unbalanced,
+                            // which is a positive number, representing the left side of the unbalance
                             if self.balance_factor() == 2 {
                                 match NotBalanced {
                                     Left => self.right_rotate(), // Case: LeftLeft - ll
                                     Right => self.rotate_lr(), // Case LeftRight - lr
-                                    _ => unreachable!(), //返回 `Unknown` 的时候当前节点必定是平衡的
+                                    _ => unreachable!(), // The current node must be balanced when `Unknown` is returned
                                 }
-                                Balanced  // 操作之后树已经平衡
+                                Balanced  // The tree is balanced after the operation
                             } else if self.height() == {
-                                // 验证此时(after rotate)的高度是否和节点内部记录的一样
+                                // Verify that the height at this point (after rotate) is the same as the one recorded inside the node
                                 self.update_height();
                                 self.height()
                             } {
-                                // 这里相当于 else if self.height = self.height {Balanced}
+                                // Same as: else if self.height = self.height {Balanced}
                                 Balanced
                             } else {
-                                Left  // 如果插入之后既平衡且高度一致，直接记录"左侧完成插入"
+                                Left  // If the insertion is both balanced and the height is the same,
+                                // record "left side finished inserting" directly
                             }
                         }
                     }
-                    //进入右子树递归插入
+                    // Recursive insertion into the right subtree
                 } else {
                     match root.right.do_insert(val) {
                         Balanced => Balanced,
                         NotBalanced => {
-                            // 当"平衡因子"绝对值大于1的时候就是不平衡，此时是负数，代表右侧不平衡
+                            // When the absolute value of "equilibrium factor" is greater than 1, it is unbalanced,
+                            // which is a negative number, representing the right side of the unbalance
                             if self.balance_factor() == -2 {
                                 match NotBalanced {
                                     Left => self.rotate_rl(),  // case: RightLeft - rl
@@ -279,69 +275,77 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn do_delete(&mut self, val: &mut DeleteValue<T>, val2: &T) -> InnerResult {
-        // 核心思想: Hibbard Deletion - 当待删除节点左右都不为空时，首先找到以待删除节点为根的子树，其次找到最接近它的值的节点，用这个节点来替换
-        // e.g. 我要删除59这个节点，最优解是找到58或者60(左侧找最大，右侧找最小)
+        // Core idea: Hibbard Deletion
+        // When the node to be deleted is not empty, first find the subtree with the node to be deleted as the root,
+        // and second find the node closest to its value and replace it with this node
+        // e.g. I want to delete the node 59, the optimal solution is to find 58 or 60
+        // (the left side to find the maximum, the right side to find the minimum)
         match self {
-            // 如果这个地方没有值，那就"什么都不做"
+            // If the place has no value, then "do nothing"
             None => {
-                *val = Del(None); // 用delete(None)代表do nothing
+                *val = Del(None);
                 println!("DELETE FAILED: No such node({:?}) to delete", val2);
                 Balanced
             }
-            // 如果有
+            // If have, then
             Some(root) => {
-                // 先搞到以这个节点为跟的树(或子树)的高度，存起来备用
+                // First get the height of the tree (or subtree) with this node as the heel, and save it as a backup
                 let height = root.height;
-                // case 1:如果要找的就是当前这个
+                // case 1: If what you are looking for is the current
                 if val == root {
                     if root.left.is_some() {
-                        //左右子树均非空
+                        // Case 1-1: The left and right subtrees are not empty
                         if root.right.is_some() {
-                            // 找到左右两侧中高度最高的那颗子树拿取替补节点，减少对平衡性的损坏
+                            // Find the tallest subtree in the left or right sides to take the replacement node,
+                            // reduce the damage to the balance
                             if root.left.height() > root.right.height() {
-                                *val = Max;  // 找到左侧最大值，这里不用担心目标值val会被覆盖，因为"val==root"
-                                root.left.do_delete(val, val2); // 在左侧子树中删除这个"最大节点"并返回这个节点
+                                *val = Max;  // Give val a "Max tag"
+                                root.left.do_delete(val, val2); // Delete the "largest node(Max)" in the left subtree and return this node
                                 match val {
-                                    // 如果有返回值Del<Node<T>>，就将这个"最大节点"和"待删除节点"交换，让"最大节点"进入"待删除节点"的原有位置
+                                    // If there is a return value Del<Node<T>>, swap the "largest node(Max)" with the "node to be deleted",
+                                    // so that the "largest node" enters the original position of the "node to be deleted".
                                     Del(Some(node)) => {
+                                        // root.val -> the node we want to delete
+                                        // node.val -> the node used to replace the "delete node"
                                         swap(&mut root.val, &mut node.val);
                                     }
                                     _ => unreachable!(),
                                 }
                             } else {
-                                // 如果是右侧子树最高，那么就在右侧子树中找最小值
+                                // else, find the minimum value in the right side
                                 *val = Min;
                                 root.right.do_delete(val, val2);  // 删除这个最小值并返回
                                 match val {
-                                    // 如果返回值不为空，那么就将这个"最小节点"和"待删除节点"交换，让"最小节点"进入"待删除节点"的原有位置
+                                    // Same above
                                     Del(Some(x)) => {
                                         swap(&mut root.val, &mut x.val);
                                     }
                                     _ => unreachable!(),
                                 }
                             }
-                        } else {  //左子树非空(left.is_some())，右子树为空(right.is_none())
-                            // 直接拿取待删除节点的左侧子树
+                        } else {  // Case1-2: left.is_some() & right.is_none()
+                            // Directly take the left-side subtree
                             let mut left = root.left.take();
-                            // 让左侧子树的头节点接入待删除节点的位置
+                            // put it to the root's position
                             swap(self, &mut left);
-                            *val = Del(left);  // 返回待删除节点
+                            *val = Del(left);  // return the deleted value
                         }
-                    } else {  //左子树为空(left.is_none())，右子树非空或为空
-                        // 直接拿去待删除节点的右侧子树
+                    } else {  // left is none
+                        // Directly take the right-side subtree
                         let mut right = root.right.take();
-                        // 将右侧子树的头节点接入待删除节点的位置
+                        // put it to the root's position
                         swap(self, &mut right);
-                        *val = Del(right); // 返回待删除节点
+                        *val = Del(right); // return the deleted value
                     }
-                    self.update_height();  // 捣鼓完了更新一下节点高度
-                } else if val < root {  // Case 2: 待删除的值比当前节点的值要小，进入左子树递归删除
-                    match root.left.do_delete(val, val2) {  // 递归的向左侧子树进行删除操作，当找到后待删除节点后会执行Case 1的代码并返回结果(balance or not?)
-                        Balanced => return Balanced,  // 如果删除完了还是balance，那就什么都不做
-                        Unknown => {  // 如果不平衡了就要自旋转来维护平衡
-                            if self.balance_factor() == -2 {  // 左侧删除完之后右侧会变高
-                                let right = self.as_ref().unwrap().right.as_ref().unwrap();  // 拿去右侧子树
-                                if right.left.height() > right.right.height() {  // 如果右侧子树的左侧比右侧搞
+                    self.update_height();  // update the height
+                } else if val < root {  // Case 2: val < root's value, go to the left-side
+                    match root.left.do_delete(val, val2) {  // Recursively delete on the left subtree,
+                        // when found after the node to be deleted will execute the code of Case 1 and return the result (balance or not)
+                        Balanced => return Balanced,
+                        Unknown => {  // If the imbalance will be self-rotating to maintain balance
+                            if self.balance_factor() == -2 {  // The right side will be taller after the left side is deleted
+                                let right = self.as_ref().unwrap().right.as_ref().unwrap();  // get right side
+                                if right.left.height() > right.right.height() {  // if right-left is taller than right-right
                                     self.rotate_rl();  // RightLeft - rl case
                                 } else {
                                     self.left_rotate();  // Otherwise, RightRight - rr case
@@ -352,7 +356,7 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                         }
                         _ => unreachable!(),
                     }
-                } else {  // val>root，进入右子树递归删除
+                } else {  // Case 3: val > root's value, go to the right-side
                     match root.right.do_delete(val, val2) {
                         Balanced => return Balanced,
                         Unknown => {
@@ -370,7 +374,8 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
                         _ => unreachable!(),
                     }
                 }
-                // 这里就是递归到“底层”执行完删除动作之后返回给上一层的结果
+                // Here is the result of the recursion to the "bottom" level after performing the delete action
+                // and returning it to the top level
                 // root.[direction].do_delete(val) -> Balanced or Unknown?
                 if self.height() == height {
                     Balanced
@@ -383,14 +388,12 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
 
     fn recursive_print(&self, prefix_space: &String, is_left: bool, child_prefix: String) {
         if self.is_none() {
-            // let null_prefix = if is_right { "└ " } else { "├ " };
             let null_prefix = if is_left { "├ " } else { "└ " };
             println!("{}{}{} {}", prefix_space, null_prefix, child_prefix, "null");
             return;
         }
 
         let node = self.as_ref().unwrap();
-        // let prefix_current = if is_right { "└ " } else { "├ " }; // Always prints L-node first then R-node
         let prefix_current = if is_left { "├ " } else { "└ " };
 
         // Print the current
@@ -400,7 +403,6 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
         );
 
         // adjust the space
-        // let prefix_child = if is_right { "  " } else { "| " }; // back up symbol: ┤
         let prefix_child = if is_left { "| " } else { "  " };
         let mut prefix_space = prefix_space.to_owned();
         prefix_space.push_str(&prefix_child);
@@ -462,8 +464,9 @@ impl<T: PartialOrd + Copy + Debug> __AvlTree<T> for AvlTreeNode<T> {
     }
 }
 
+// implementation for public
 impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
-    // 新建一个节点
+    // generate a new node
     fn new(val: T) -> Self {
         Some(Box::new(TreeNode {
             val,
@@ -472,18 +475,18 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
             right: None,
         }))
     }
-    // 获取节点的高度
+    // get a node's height
     fn height(&self) -> i32 {
         match self {
             None => 0,
             Some(node) => node.height,
         }
     }
-    // 插入节点：调用私用方法
+    // insert
     fn insert_node(&mut self, val: T) {
         self.do_insert(val);
     }
-    // 删除节点：调用私用方法
+    // delete
     fn delete_node(&mut self, val: T) -> Self {
         let val2 = val.clone();
         let mut val = Val(val);
@@ -498,7 +501,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
             _ => unreachable!()
         }
     }
-    // 判断该树是不是AVL，返回true或者false
+    // Is it a avl tree?
     fn validate_tree(&self) -> bool {
         if let Some(root) = self {
             if root.height != max(root.left.height(), root.right.height()) + 1 {

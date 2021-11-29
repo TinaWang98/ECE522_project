@@ -204,8 +204,8 @@ fn run_command_line_app() {
                             3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
                             4 => println!("Height of tree: {}", rb_tree.get_height()),
                             5 => println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal()),
-                            6 => {todo!()} //preorder?
-                            7 => {todo!()} //postorder?
+                            6 => { todo!() } //preorder?
+                            7 => { todo!() } //postorder?
                             8 => {
                                 if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
                             }
