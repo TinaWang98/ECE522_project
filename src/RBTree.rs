@@ -560,6 +560,20 @@ impl RBTree {
         }
     }
 
+    pub fn exist_or_not(&mut self,val:u32) -> bool{
+        return self.private_search(val).0;
+    }
+
+    pub fn update_node(&mut self,old_val:u32,new_val:u32) {
+        if self.exist_or_not(old_val){
+            self.delete(old_val);
+            self.insert_node(new_val);
+            println!("Node({:?}) has been replaced by Node({:?})", old_val, new_val);
+        } else {
+            println!("UPDATE FAILED: Node({:?}) doesn't exist.", old_val);
+        }
+    }
+
     pub fn delete(&mut self, val: u32) -> Result<(), String> {
         if self.root.is_none() {
             return Err(format!("Tree is none").to_string());
@@ -585,14 +599,43 @@ impl RBTree {
         vec.push(node.key);
         self.nodes_in_order(&node.right, vec);
     }
-    pub fn print_in_order_traversal(&self) {
-        if self.is_empty() {
-            print!("The RBTree is null");
-        } else {
-            let mut vec = Vec::new();
-            self.nodes_in_order(&self.root, &mut vec);
-            println!("{:?}", vec);
+
+    fn nodes_pre_order(&self, node: &RedBlackTree, vec: &mut Vec<u32>) {
+        if node.is_none() {
+            return;
         }
+        let node = node.as_ref().unwrap().borrow_mut();
+        vec.push(node.key);
+        self.nodes_pre_order(&node.left, vec);
+        self.nodes_pre_order(&node.right, vec);
+    }
+
+    fn nodes_post_order(&self, node: &RedBlackTree, vec: &mut Vec<u32>) {
+        if node.is_none() {
+            return;
+        }
+        let node = node.as_ref().unwrap().borrow_mut();
+        self.nodes_post_order(&node.left, vec);
+        self.nodes_post_order(&node.right, vec);
+        vec.push(node.key);
+    }
+
+    pub fn print_in_order_traversal(&self) -> Vec<u32>{
+        let mut vec = Vec::new();
+        self.nodes_in_order(&self.root, &mut vec);
+        vec
+    }
+
+    pub fn print_pre_order_traversal(&self) -> Vec<u32>{
+        let mut vec = Vec::new();
+        self.nodes_pre_order(&self.root, &mut vec);
+        vec
+    }
+
+    pub fn print_post_order_traversal(&self) -> Vec<u32>{
+        let mut vec = Vec::new();
+        self.nodes_post_order(&self.root, &mut vec);
+        vec
     }
 
     fn recursion_print(node: &RedBlackTree, pre_space: &String, is_left: bool, child_pre: String) {

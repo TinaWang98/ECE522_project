@@ -1,4 +1,5 @@
 use ECE522_project::run_avl_tree_example;
+use ECE522_project::run_rb_tree_example;
 use crate::AVL::{AvlTree, AvlTreeNode};
 use RBTree::*;
 
@@ -6,6 +7,7 @@ mod RBTree;
 mod AVL;
 
 fn main() {
+
     run_command_line_app();
 }
 
@@ -204,8 +206,8 @@ fn run_command_line_app() {
                             3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
                             4 => println!("Height of tree: {}", rb_tree.get_height()),
                             5 => println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal()),
-                            6 => {todo!()} //preorder?
-                            7 => {todo!()} //postorder?
+                            6 => println!("Pre Order Traverse: {:?}", rb_tree.print_pre_order_traversal()),
+                            7 => println!("Post Order Traverse: {:?}", rb_tree.print_post_order_traversal()),
                             8 => {
                                 if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
                             }
@@ -216,7 +218,6 @@ fn run_command_line_app() {
                 }
             }
 
-            // add command line of Red-Black Tree HERE!
             "prebuild" => {
                 println!("Please choose what kind of example you want to run?\n\
                 1 - AVL tree\n\
@@ -225,7 +226,7 @@ fn run_command_line_app() {
                 if input == 1 {
                     run_avl_tree_example()
                 } else if input == 2 {
-                    // run_rb_tree_example()
+                    run_rb_tree_example()
                 } else {
                     println!("Wrong input, please try again...");
                 }
