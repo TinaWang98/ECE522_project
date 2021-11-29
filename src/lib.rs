@@ -46,5 +46,38 @@ pub fn run_avl_tree_example() {
 }
 
 pub fn run_rb_tree_example() {
-    todo!();
+    //add element and print the whole tree
+    let mut rb_tree = RBTree::RBTree::new();
+    for i in vec![1,2,3,4,5,6] {
+        rb_tree.insert_node(i);
+    }
+    rb_tree.print_tree();
+    //print basic information of rb_tree
+    println!("Number of leaves: {}", rb_tree.get_number_leaves());
+    println!("Height of tree: {}", rb_tree.get_height());
+    //pre/in/post reversal
+    println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal());
+    println!("Pre Order Traverse: {:?}", rb_tree.print_pre_order_traversal());
+    println!("Post Order Traverse: {:?}",rb_tree.print_post_order_traversal());
+    //is empty?
+    if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
+    //delete 3,4,5
+    rb_tree.delete(3);
+    rb_tree.delete(4);
+    rb_tree.delete(5);
+    println!("The deleted Node contains: 3, 4, 5");
+    // node exists？
+    for i in vec![1,2,3,4,5,6] {
+        println!("Does {} exist? {}", i, rb_tree.exist_or_not(i));
+    }
+    //print the rb_tree after doing delete operation
+    rb_tree.print_tree();
+    // add new nodes -> rb_tree:[1, 2, 6, 7, 8]
+    for i in vec![7,8] {
+        rb_tree.insert_node(i);
+    }
+    //print tree after doing insert operation
+    rb_tree.print_tree();
+    rb_tree.update_node(2, 3);
+    println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal());
 }
