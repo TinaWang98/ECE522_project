@@ -1,56 +1,61 @@
-use std::cmp::Ordering;
-use std::fmt::Display;
+pub type Node<T> = Option<Box<Bstree<T>>>;
 
-#[derive(Debug, Clone)]
-pub enum BSTree<T: Ord + Display> {
-    Node {
-        data: T,
-        left_child: Box<BSTree<T>>,
-        right_child: Box<BSTree<T>>,
-    },
-    Empty,
+#[derive(Debug)]
+pub struct Bstree<T> {
+    val: T,
+    left: Node<T>,
+    right: Node<T>,
 }
 
+pub trait BinarySearchTree<T: Copy + PartialOrd> {
+    fn gen_empty_tree() -> Self;
+    fn new_node(&mut self, val: T) -> Self;
+    fn insert_node(&mut self, val: T);
+    fn search_node(&self, val: T) -> bool;
+}
 
-impl<T: Ord + Display> BSTree<T> {
-    pub fn new_empty() -> BSTree<T> {
-        BSTree::Empty
+impl<T> BinarySearchTree<T> for Node<T> where T: Copy + PartialOrd {
+    fn gen_empty_tree() -> Self {
+        Self::None
     }
 
-    pub fn new(val: T) -> BSTree<T> {
-        BSTree::Node {
-            data: val,
-            left_child: Box::from(BSTree::Empty),
-            right_child: Box::from(BSTree::Empty)
-        }
+    fn new_node(&mut self, val: T) -> Self {
+        Some(Box::from(Bstree {
+            val,
+            left: None,
+            right: None,
+        }))
     }
 
-    pub fn insert(&mut self, value: T) -> bool{
+    fn insert_node(&mut self, val: T) {
         match self {
-            &mut BSTree::Node{ref data, ref mut left_child, ref mut right_child} => {
-                match value.cmp(data) {
-                    Ordering::Less => left_child.insert(value),  // do it recursively
-                    Ordering::Greater => right_child.insert(value),
-                    _  => return false,
-                };
-            },
-            &mut BSTree::Empty => {   // if the current node is an empty node
-                *self = BSTree::new(value);
+            None => *self = self.new_node(val),
+            Some(node) => {
+                if val < node.val {
+                    node.left.insert_node(val);
+                } else if val > node.val {
+                    node.right.insert_node(val);
+                } else {
+                    println!("Node exists!");
+                }
             }
         }
-        return true
     }
 
-    pub fn search(&self, value: T) -> bool {
+    fn search_node(&self, val: T) -> bool {
         match self {
-            &BSTree::Node { ref data, ref left_child, ref right_child} => {
-                match value.cmp(data) {
-                    Ordering::Less => return left_child.search(value),
-                    Ordering::Greater => return right_child.search(value),
-                    _  => return true
+            None => false,
+            Some(node) => {
+                if val < node.val {
+                    self.as_ref().unwrap().left.search_node(val)
+                } else if val > node.val {
+                    self.as_ref().unwrap().right.search_node(val)
+                } else if val == node.val {
+                    true
+                } else {
+                    false
                 }
-            },
-            &BSTree::Empty => return false,
+            }
         }
     }
 }
