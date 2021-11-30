@@ -17,30 +17,38 @@ fn handle_input() -> i32 {
     res
 }
 
-fn input_to_vec() -> Vec<i32> {
+fn input_to_vec() -> Result<Vec<i32>, ()> {
     let mut numbers = String::new();
     std::io::stdin()
         .read_line(&mut numbers)
         .ok()
         .expect("read error");
-    let numbers: Vec<i32> = numbers
-        .split_whitespace()
-        .map(|s| s.parse().expect("parse error"))
-        .collect();
-    numbers
+    let numbers = numbers.split_whitespace();
+    let mut vec: Vec<i32> = Vec::new();
+    for i in numbers {
+        match i.parse() {
+            Ok(i) => vec.push(i),
+            Err(_) => println!("Please replace '{}' with a integer!", i),
+        }
+    }
+    Ok(vec)
 }
 
-fn input_to_u32_vec() -> Vec<u32> {
+fn input_to_u32_vec() -> Result<Vec<u32>, ()> {
     let mut numbers = String::new();
     std::io::stdin()
         .read_line(&mut numbers)
         .ok()
         .expect("read error");
-    let numbers: Vec<u32> = numbers
-        .split_whitespace()
-        .map(|s| s.parse().expect("parse error"))
-        .collect();
-    numbers
+    let numbers = numbers.split_whitespace();
+    let mut vec: Vec<u32> = Vec::new();
+    for i in numbers {
+        match i.parse() {
+            Ok(i) => vec.push(i),
+            Err(_) => println!("Please replace '{}' with a no-sign integer!", i),
+        }
+    }
+    Ok(vec)
 }
 
 // command line instruction list
@@ -98,7 +106,7 @@ fn run_command_line_app() {
             "avl" => {
                 if length != 2 {
                     eprintln!("Wrong number of arguments, please follow [cargo run avl]");
-                    std::process::exit(1);
+                    // std::process::exit(1);
                 } else {
                     let mut avl_tree: AvlTreeNode<_> = AvlTree::generate_empty_tree();
                     loop {
@@ -110,7 +118,7 @@ fn run_command_line_app() {
                             1 => {
                                 println!("Please input what kind of value you want to add. Separate by one whitespace.\n\
                                 e.g.1 2 3 4 5");
-                                let input = input_to_vec();
+                                let input = input_to_vec().unwrap();
                                 for i in input.clone() {
                                     avl_tree.insert_node(i);
                                 }
@@ -120,7 +128,7 @@ fn run_command_line_app() {
                                 println!("Current tree contains {:?}", avl_tree.in_order_traverse());
                                 println!("Please input what kind of value you want to delete. Separate by one whitespace.\n\
                                 e.g.1 2 3 4 5");
-                                let input = input_to_vec();
+                                let input = input_to_vec().unwrap();
                                 for i in input.clone() {
                                     avl_tree.delete_node(i);
                                 }
@@ -138,7 +146,7 @@ fn run_command_line_app() {
                             10 => {
                                 println!("Please input the node you want to update. Separate by one whitespace\n\
                                 e.g.1 2(replace 1 with 2)");
-                                let input = input_to_vec();
+                                let input = input_to_vec().unwrap();
                                 if input.len() != 2 {
                                     eprintln!("Wrong number of input. Try again...")
                                 } else {
@@ -147,7 +155,7 @@ fn run_command_line_app() {
                             }
                             11 => {
                                 println!("Please input the node/nodes you want to check. Separate by one whitespace.");
-                                let input = input_to_vec();
+                                let input = input_to_vec().unwrap();
                                 if input.len() == 0 {
                                     println!("Numbers of node can not be zero!")
                                 } else {
@@ -169,7 +177,7 @@ fn run_command_line_app() {
             "rb" => {
                 if length != 2 {
                     eprintln!("Wrong number of arguments, please follow [cargo run rb]");
-                    std::process::exit(1);
+                    // std::process::exit(1);
                 } else {
                     let mut rb_tree: RBTree::RBTree = RBTree::RBTree::new();
                     loop {
@@ -181,7 +189,7 @@ fn run_command_line_app() {
                             1 => {
                                 println!("Please input what kind of value you want to add. Separate by one whitespace.\n\
                                 e.g.1 2 3 4 5");
-                                let input: Vec<u32> = input_to_u32_vec();
+                                let input: Vec<u32> = input_to_u32_vec().unwrap();
                                 for i in input.clone() {
                                     rb_tree.insert_node(i);
                                 }
@@ -191,7 +199,7 @@ fn run_command_line_app() {
                                 println!("Current tree contains {:?}", rb_tree.print_in_order_traversal());
                                 println!("Please input what kind of value you want to delete. Separate by one whitespace.\n\
                                 e.g.1 2 3 4 5");
-                                let input: Vec<u32> = input_to_u32_vec();
+                                let input: Vec<u32> = input_to_u32_vec().unwrap();
                                 for i in input.clone() {
                                     rb_tree.delete(i);
                                 }
