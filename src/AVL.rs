@@ -106,6 +106,8 @@ pub trait AvlTree<T: PartialOrd> {
     // generate a new empty tree
     fn update_node(&mut self, old: T, new: T);
     // update the node
+    fn total_number_elements(&mut self) -> i32;
+    // count total number of elements
 }
 
 // implementation for private
@@ -613,5 +615,10 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
                 }
             }
         }
+    }
+
+    fn total_number_elements(&mut self) -> i32 {
+        let res_vec = self.in_order_traverse();
+        res_vec.len() as i32
     }
 }

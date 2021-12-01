@@ -75,7 +75,8 @@ fn avl_help_list() {
               9 - Print: print this tree\n\
               10 - Update: Update the value of a specific node (replace A with B)\n\
               11 - Exist Or Not: Check whether a value exists\n\
-              12 - Validate: Check whether it is a balanced tree");
+              12 - Validate: Check whether it is a balanced tree\n\
+              13 - Total Number: Total number of elements");
     println!("=======================================");
 }
 
@@ -166,6 +167,9 @@ fn run_command_line_app() {
                             }
                             12 => {
                                 println!("Balanced Tree? {}", avl_tree.validate_tree());
+                            }
+                            13 => {
+                                println!("This AVL tree has a total of {} elements.", avl_tree.total_number_elements());
                             }
                             _ => println!("Wrong input! Input should be a number from 0-12, please try again..."),
                         }
