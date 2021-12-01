@@ -12,6 +12,7 @@ pub trait BinarySearchTree<T: Copy + PartialOrd> {
     fn new_node(&mut self, val: T) -> Self;
     fn insert_node(&mut self, val: T);
     fn search_node(&self, val: T) -> bool;
+    fn search_node_optimize(&self, val: T) -> bool;
 }
 
 impl<T> BinarySearchTree<T> for Node<T> where T: Copy + PartialOrd {
@@ -57,5 +58,24 @@ impl<T> BinarySearchTree<T> for Node<T> where T: Copy + PartialOrd {
                 }
             }
         }
+    }
+
+    fn search_node_optimize(&self, val: T) -> bool {
+        let mut path = Vec::new();
+        path.push(self);
+        while let Some(&node) = path.get(0) {
+            if node.as_ref().is_some() && val < node.as_ref().unwrap().val {
+                path.pop();
+                path.push(&node.as_ref().unwrap().left);
+            } else if node.as_ref().is_some() && val > node.as_ref().unwrap().val {
+                path.pop();
+                path.push(&node.as_ref().unwrap().right);
+            } else if node.as_ref().is_some() && val == node.as_ref().unwrap().val {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        false
     }
 }

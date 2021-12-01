@@ -34,6 +34,7 @@ pub fn test_BST(tree_size: i32) {
     let end = tree_size / 10;
     for j in 0..end {
         bs_tree.search_node(j);
+        // bs_tree.search_node_optimize(j);
     }
 }
 
