@@ -171,7 +171,7 @@ fn run_command_line_app() {
                             13 => {
                                 println!("This AVL tree has a total of {} elements.", avl_tree.total_number_elements());
                             }
-                            _ => println!("Wrong input! Input should be a number from 0-12, please try again..."),
+                            _ => println!("Wrong input! Input should be a number from 0-13, please try again..."),
                         }
                         std::thread::sleep(std::time::Duration::from_millis(800));
                     }

@@ -45,6 +45,7 @@ pub fn run_avl_tree_example() {
 
     println!(" ===== let's do a in order traversal in the end ===== ");
     println!("In Order Traverse: {:?}", avl_tree.in_order_traverse());
+    println!("This AVL tree has a total of {} elements.", avl_tree.total_number_elements());
 }
 
 pub fn run_rb_tree_example() {
