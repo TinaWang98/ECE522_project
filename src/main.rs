@@ -136,7 +136,6 @@ fn run_command_line_app() {
                                 for i in input.clone() {
                                     avl_tree.delete_node(i);
                                 }
-                                println!("Delete {:?} successfully.", input);
                             }
                             3 => println!("Number of leaves: {}", avl_tree.number_of_leaves()),
                             4 => println!("Height of tree: {}", avl_tree.height_of_tree()),
