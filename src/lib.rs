@@ -54,6 +54,7 @@ pub fn run_rb_tree_example() {
     for i in vec![1, 2, 3, 4, 5, 6] {
         rb_tree.insert_node(i);
     }
+    println!(" ===== Add {:?} to avl tree ===== ", vec![1, 2, 3, 4, 5, 6]);
     rb_tree.print_tree();
     //print basic information of rb_tree
     println!("Number of leaves: {}", rb_tree.get_number_leaves());
@@ -64,23 +65,29 @@ pub fn run_rb_tree_example() {
     println!("Post Order Traverse: {:?}", rb_tree.print_post_order_traversal());
     //is empty?
     if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
+    println!(" ===== Delete {:?} from the tree =====", vec![3, 4, 5]);
     //delete 3,4,5
     rb_tree.delete(3);
     rb_tree.delete(4);
     rb_tree.delete(5);
     println!("The deleted Node contains: 3, 4, 5");
     // node exists？
+    println!(" ===== Check the result of above operation ===== ");
     for i in vec![1, 2, 3, 4, 5, 6] {
         println!("Does {} exist? {}", i, rb_tree.exist_or_not(i));
     }
     //print the rb_tree after doing delete operation
     rb_tree.print_tree();
     // add new nodes -> rb_tree:[1, 2, 6, 7, 8]
+    println!(" ===== Add some new nodes ([7, 8]) ===== ");
     for i in vec![7, 8] {
         rb_tree.insert_node(i);
     }
     //print tree after doing insert operation
     rb_tree.print_tree();
+    println!(" ===== Update node value 2 -> 3 ===== ");
     rb_tree.update_node(2, 3);
+    println!(" ===== let's do a in order traversal in the end ===== ");
     println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal());
+    println!("This RBTree has a total of {} elements.", rb_tree.total_number_elements());
 }

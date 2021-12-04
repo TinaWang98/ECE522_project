@@ -91,7 +91,10 @@ fn rb_help_list() {
               6 - Pre Order Traversal: print the pre-order traversal of the avl tree\n\
               7 - Post Order Traversal: print the post-order traversal of the avl tree\n\
               8 - Empty Or Not: check it is empty or not\n\
-              9 - Print: print this tree");
+              9 - Print: print this tree\n\
+              10 - Update: Update the value of a specific node (replace A with B)\n\
+              11 - Exist Or Not: Check whether a value exists\n\
+              12 - Total Number: Total number of elements");
     println!("=======================================");
 }
 
@@ -205,9 +208,8 @@ fn run_command_line_app() {
                                 e.g.1 2 3 4 5");
                                 let input: Vec<u32> = input_to_u32_vec().unwrap();
                                 for i in input.clone() {
-                                    rb_tree.delete(i);
+                                    println!("{:?}",rb_tree.delete(i));
                                 }
-                                println!("Delete {:?} successfully.", input);
                             }
                             3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
                             4 => println!("Height of tree: {}", rb_tree.get_height()),
@@ -218,9 +220,34 @@ fn run_command_line_app() {
                                 if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
                             }
                             9 => rb_tree.print_tree(),
+                            10 => {
+                                println!("Please input the node you want to update. Separate by one whitespace\n\
+                                e.g.1 2(replace 1 with 2)");
+                                let input = input_to_u32_vec().unwrap();
+                                if input.len() != 2 {
+                                    eprintln!("Wrong number of input. Try again...")
+                                } else {
+                                    rb_tree.update_node(input.get(0).unwrap().to_owned(), input.get(1).unwrap().to_owned());
+                                }
+                            },
+                            11 => {
+                                println!("Please input the node/nodes you want to check. Separate by one whitespace.");
+                                let input = input_to_u32_vec().unwrap();
+                                if input.len() == 0 {
+                                    println!("Numbers of node can not be zero!")
+                                } else {
+                                    for i in input {
+                                        println!("Does {} exist? {}", i, rb_tree.exist_or_not(i));
+                                    }
+                                }
+                            },
+                            12 => {
+                                println!("This RBTree has a total of {} elements.", rb_tree.total_number_elements());
+                            }
                             _ => println!("Wrong input! Input should be a number from 0-9, please try again..."),
                         }
                     }
+                    println!("Thank you! Hope to see you again!");
                 }
             }
 

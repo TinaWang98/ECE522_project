@@ -663,4 +663,9 @@ impl RBTree {
         RBTree::recursion_print(&self.root, &"".to_string(), true, "Root".to_string());
         println!("\n======================= FINISH PRINT ========================");
     }
+
+    pub fn total_number_elements(&self) ->i32 {
+        let res_vec = RBTree::vec_nodes_in_order(self);
+        res_vec.len() as i32
+    }
 }
