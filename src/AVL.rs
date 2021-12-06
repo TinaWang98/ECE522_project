@@ -560,7 +560,6 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     }
 
     fn in_order_traverse(&mut self) -> Vec<T> {
-
         let mut inorder_list = Vec::new();
         self.inorder_to_list(&mut inorder_list);
         inorder_list
@@ -581,7 +580,7 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
     fn print_tree_diagram(&mut self) {
         match self {
             None => println!("Tree is Empty! Add some nodes before print."),
-            Some(_) =>{
+            Some(_) => {
                 println!("\n================== TREE PRINT <Node:Height> ==================");
                 self.recursive_print(&"".to_string(), true, "Root".to_string());
                 println!("======================== FINISH PRINT ========================");
@@ -606,12 +605,18 @@ impl<T: PartialOrd + Copy + Debug> AvlTree<T> for AvlTreeNode<T> {
         match self {
             None => println!("Tree is Empty! Add some nodes before update."),
             Some(_) => {
-                if self.exist_or_not(old) {
-                    self.delete_node(old);
-                    self.insert_node(new);
-                    println!("Node({:?}) has been replaced by Node({:?})", old, new);
+                if self.exist_or_not(old) == false {
+                    println!("UPDATE FAILED: Node({:?}) doesn't exist!", old);
+                } else if old == new {
+                    println!("UPDATE FAILED: New value and old value can not be same!");
                 } else {
-                    println!("UPDATE FAILED: Node({:?}) doesn't exist.", old);
+                    if self.exist_or_not(old) && self.exist_or_not(new) {
+                        println!("UPDATE FAILED: Both Node({:?}) and Node({:?}) exist!", old, new);
+                    } else {
+                        self.do_delete(&mut Val(old), &old);
+                        self.insert_node(new);
+                        println!("Node({:?}) has been replaced by Node({:?})", old, new);
+                    }
                 }
             }
         }

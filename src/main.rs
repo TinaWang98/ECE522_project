@@ -123,10 +123,18 @@ fn run_command_line_app() {
                                 println!("Please input what kind of value you want to add. Separate by one whitespace.\n\
                                 e.g.1 2 3 4 5");
                                 let input = input_to_vec().unwrap();
+                                let mut output = Vec::new();
                                 for i in input.clone() {
-                                    avl_tree.insert_node(i);
+                                    if !avl_tree.exist_or_not(i) {
+                                        avl_tree.insert_node(i);
+                                        output.push(i);
+                                    } else {
+                                        println!("INSERT FAILED: Node({:?}) already exists!", i);
+                                    }
                                 }
-                                println!("Insert {:?} successfully.", input);
+                                if output.len() != 0 {
+                                    println!("Insert {:?} successfully.", output);
+                                }
                             }
                             2 => {
                                 println!("Current tree contains {:?}", avl_tree.in_order_traverse());
@@ -207,7 +215,7 @@ fn run_command_line_app() {
                                 e.g.1 2 3 4 5");
                                 let input: Vec<u32> = input_to_u32_vec().unwrap();
                                 for i in input.clone() {
-                                    println!("{:?}",rb_tree.delete(i));
+                                    println!("{:?}", rb_tree.delete(i));
                                 }
                             }
                             3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
@@ -228,7 +236,7 @@ fn run_command_line_app() {
                                 } else {
                                     rb_tree.update_node(input.get(0).unwrap().to_owned(), input.get(1).unwrap().to_owned());
                                 }
-                            },
+                            }
                             11 => {
                                 println!("Please input the node/nodes you want to check. Separate by one whitespace.");
                                 let input = input_to_u32_vec().unwrap();
@@ -239,7 +247,7 @@ fn run_command_line_app() {
                                         println!("Does {} exist? {}", i, rb_tree.exist_or_not(i));
                                     }
                                 }
-                            },
+                            }
                             12 => {
                                 println!("This RBTree has a total of {} elements.", rb_tree.total_number_elements());
                             }
