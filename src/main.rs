@@ -220,9 +220,13 @@ fn run_command_line_app() {
                                 println!("Please input what kind of value you want to delete. Separate by one whitespace.\n\
                                 e.g.1 2 3 4 5");
                                 let input: Vec<u32> = input_to_u32_vec().unwrap();
-
                                 for i in input.clone() {
-                                    println!("{:?}", rb_tree.delete(i));
+                                    if rb_tree.exist_or_not(i){
+                                        rb_tree.delete(i);
+                                        println!("Delete {:?} successfully",i);
+                                    }else{
+                                        println!("Delete FAILED: Node({:?}) doesn't exist!", i);
+                                    }
                                 }
                             }
                             3 => println!("Number of leaves: {}", rb_tree.get_number_leaves()),
