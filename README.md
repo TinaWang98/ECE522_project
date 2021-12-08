@@ -1,7 +1,6 @@
 # AVL Tree Design Document
 
 > This AVL tree is part of a tree data structure project by Zhaoyi Wang (Mike), Zihao Wang (Bluce) and Shuo Wang (Tina). The goal of this project is to write AVL tree and Red Black tree using `Rust` language. 
-------
 
 ## Part 1: Brief Overview
 
@@ -10,19 +9,15 @@ Except the following basic features marked by ✅, we add some additional featur
 - ✅ Insert / Delete / Count Leaves / Calculate Height / In-order Traversal / Check Empty / Print Tree
 - 🌟 Pre-order Traversal / Post-order Traversal / Check Element Existence / Update Node / Validate Tree / Total Number of Elements
 
-------
 
 ## Part 2: Current Shortcomings
 
-------
 
 ❌ Up to this stage, if users want to test in the command line, then their input can only be of numeric type (e.g., `1,2,3,4,5`). This version does not support users using character or string types in the command line interface for now (e.g., `'a','b','c'`). *However, users can import the file and use the interface we defined while writing their code and this will not have any restrictions.*
 
-------
 
 ## Part 3: User Manual
 
-------
 
 This AVL Tree implementation based on `Box<>` and `Option<>`.
 
@@ -163,33 +158,157 @@ fn total_number_elements(&mut self) -> i32;
 
 ------
 
-## Part 4: Performance Evaluation 
+#  RBTree Design Document
 
-------
+> This Red-black tree is part of a tree data structure project by Zhaoyi Wang (Mike), Zihao Wang (Bluce) and Shuo Wang (Tina). The goal of this project is to write AVL tree and Red Black tree using `Rust` language.
 
-The evaluation criteria are as follows:
 
+## Part 1: Major Innovations
+
+
+#### Brief Overview
+
+Except the following basic features marked by ✅, we add some additional features to this tree marked by 🌟.
+
+- ✅ Insert / Delete / Count Leaves / Calculate Height / In-order Traversal / Check Empty / Print Tree
+- 🌟 Pre-order Traversal / Post-order Traversal / Check Element Existence / Update Node/Total number of elements in a tree
+
+## Part 2: Current Shortcomings
+
+
+❌ Up to this stage, if users want to test in the command line, then their input can only be of numeric type (e.g., `1,2,3,4,5`). This version does not support users using character or string types in the command line interface for now (e.g., `'a','b','c'`). *However, users can import the file and use the interface we defined while writing their code and this will not have any restrictions.*
+
+
+## Part 3: Functions
+
+
+The functions of Red-black are as follow:
+
+1. ```rust
+   pub fn insert_node(&mut self, val: u32) -> bool;
+   ```
+
+   Test whether the node is inserted successfully.
+
+2. ```rust
+   pub fn get_number_leaves(&self) -> u32;
+   ```
+
+   Return the number of leaves in a tree.
+
+3. ```rust
+   pub fn get_height(&self) -> u32;
+   ```
+
+   Return the height of a tree.
+
+4. ```rust
+   pub fn is_empty(&self) -> bool;
+   ```
+
+   Test whether the tree is empty.
+
+5. ```rust
+   pub fn exist_or_not(&mut self,val:u32) -> bool;
+   ```
+
+   Test whether the value exists in the tree.
+
+6. ```rust
+   pub fn update_node(&mut self,old_val:u32,new_val:u32);
+   ```
+
+   Update the tree using new value to replace old value.
+
+7. ```rust
+   pub fn delete(&mut self, val: u32) -> Result<(), String>;
+   ```
+
+   Delete the node with value in the tree, return the delete result either success(Ok) or failure (Err).
+
+8. ```rust
+   pub fn print_in_order_traversal(&self) -> Vec<u32>;
+   ```
+
+   Return the vector based on in-order traversal.
+
+9. ```rust
+   pub fn print_pre_order_traversal(&self) -> Vec<u32>;
+   ```
+
+   Return the vector based on pre-order traversal.
+
+10. ```rust
+    pub fn print_post_order_traversal(&self) -> Vec<u32>;
+    ```
+
+    Return the vector based on post-order traversal.
+
+11. ```rust
+    pub fn print_tree(&self)
+    ```
+
+    Print the tree in format<L/R> <Key>:<Color>.
+
+12. ```rust
+    pub fn total_number_elements(&self) ->i32
+    ```
+
+    Print total number of elements in a tree.
+
+    
+
+## Part 4: User Manual
+
+
+First, we need to define an empty tree and insert some values into this tree.
+
+```rust
+let mut rb_tree = RBTree::RBTree::new();
+for i in vec![1,2,3,4,5,6] {
+    rb_tree.insert_node(i);
+}
 ```
-for tree_size in (10000, 40000, 70000, 100000, 130000):
-	Create a empty tree;
-	Values with tree_size are inserted into the tree;
-	A search is conducted for the (tree_size/10) lowest values.
+
+Then, we can print the tree, print the number of leaves, print the height and print the tree based on in-order, pre-order or post-order traversal.
+
+```rust
+//print the tree
+rb_tree.print_tree();
+//print the number of leaves of the tree
+println!("Number of leaves: {}", rb_tree.get_number_leaves());
+//print the height of the tree
+println!("Height of tree: {}", rb_tree.get_height());
+//print pre/in/post reversal
+println!("In Order Traverse: {:?}", rb_tree.print_in_order_traversal());
+println!("Pre Order Traverse: {:?}", rb_tree.print_pre_order_traversal());
+println!("Post Order Traverse: {:?}",rb_tree.print_post_order_traversal());
 ```
 
-This evaluation was done on the following computer configurations, and *the results may vary from computer to computer*.
+Don't forget to check whether it is empty when you not sure about your tree.
 
-> AMD Ryzen 5 3600 6-Core CPU / 16G DDR4 3200MHz Memory
+```rust
+if rb_tree.is_empty() { println!("Tree is Empty") } else { println!("Tree is not empty!") }
+```
 
-We use `criterion` create to perform the benchmark. For more information, please click [here](https://crates.io/crates/criterion).
+After that, we can delete some node.
 
-|  Size  | AVL Tree  | Binary Search Tree |
-| :----: | :-------: | :----------------: |
-| 10000  | 1.1143 ms |     98.981 ms      |
-| 40000  | 4.6040 ms |  *Stack Overflow*  |
-| 70000  | 8.2933 ms |  *Stack Overflow*  |
-| 100000 | 11.893 ms |  *Stack Overflow*  |
-| 130000 | 15.480 ms |  *Stack Overflow*  |
+```rust
+rb_tree.delete(3);
+rb_tree.delete(4);
+rb_tree.delete(5);
+```
 
-------
+To check the result of the `insert_node()` and `delete_node()` operation, you can do the following to check the existence of a specific node.
 
+```rust
+for i in vec![1,2,3,4,5,6] {
+    println!("Does {} exist? {}", i, rb_tree.exist_or_not(i));
+}
+```
 
+By the way, you can update a node just like the way you want to update a info in your database.
+
+```rust
+rb_tree.update_node(2, 3);
+```
