@@ -54,7 +54,7 @@ pub fn run_rb_tree_example() {
     for i in vec![1, 2, 3, 4, 5, 6] {
         rb_tree.insert_node(i);
     }
-    println!(" ===== Add {:?} to avl tree ===== ", vec![1, 2, 3, 4, 5, 6]);
+    println!(" ===== Add {:?} to red-black tree ===== ", vec![1, 2, 3, 4, 5, 6]);
     rb_tree.print_tree();
     //print basic information of rb_tree
     println!("Number of leaves: {}", rb_tree.get_number_leaves());
