@@ -565,14 +565,24 @@ impl RBTree {
     }
 
     pub fn update_node(&mut self,old_val:u32,new_val:u32) {
-        if self.exist_or_not(old_val){
-            self.delete(old_val);
-            self.insert_node(new_val);
-            println!("Node({:?}) has been replaced by Node({:?})", old_val, new_val);
-        } else {
-            println!("UPDATE FAILED: Node({:?}) doesn't exist.", old_val);
+        if self.is_empty(){
+            println!("Tree is Empty! Add some nodes before update.");
         }
-    }
+        else if self.exist_or_not(old_val) == false {
+            println!("UPDATE FAILED: Node({:?}) doesn't exist!", old_val);
+        } else if old_val == new_val {
+            println!("UPDATE FAILED: New value and old value can not be same!");
+        } else {
+            if self.exist_or_not(new_val) {
+                println!("UPDATE FAILED: New Node({:?}) exist!", new_val);
+            } else {
+                self.delete(old_val);
+                self.insert_node(new_val);
+                println!("Node({:?}) has been replaced by Node({:?})", old_val, new_val);
+                }
+            }
+        }
+
 
     pub fn delete(&mut self, val: u32) -> Result<(), String> {
         if self.root.is_none() {
