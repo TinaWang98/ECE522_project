@@ -181,7 +181,7 @@ fn run_command_line_app() {
                             13 => {
                                 println!("This AVL tree has a total of {} elements.", avl_tree.total_number_elements());
                             }
-                            _ => println!("Wrong input! Input should be a number from 0-13, please try again..."),
+                            _ => println!("Wrong input! Input should be a number from the list, please try again..."),
                         }
                         std::thread::sleep(std::time::Duration::from_millis(800));
                     }
@@ -251,7 +251,7 @@ fn run_command_line_app() {
                             12 => {
                                 println!("This RBTree has a total of {} elements.", rb_tree.total_number_elements());
                             }
-                            _ => println!("Wrong input! Input should be a number from 0-9, please try again..."),
+                            _ => println!("Wrong input! Input should be a number from the list, please try again..."),
                         }
                     }
                     println!("Thank you! Hope to see you again!");
